@@ -1,6 +1,6 @@
-EE_BIN = pops-smb.elf
-EE_BIN_STRIPPED = pops-smb-stripped.elf
-EE_BIN_PACKED = pops-smb-packed.elf
+EE_BIN = pops-smb-config.elf
+EE_BIN_STRIPPED = pops-smb-config-stripped.elf
+EE_BIN_PACKED = pops-smb-config-packed.elf
 EE_OBJS = main.o pad.o modules.o display.o math.o
 EE_LIBS = -ldebug -lc -lpad
 
