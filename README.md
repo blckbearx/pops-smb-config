@@ -6,7 +6,9 @@ A tool for updating the SMB configuration of POPStarter on the console itself wi
 In order to use this software, you already need to have a working installation of the [POPStarter SMB files](https://bitbucket.org/ShaolinAssassin/popstarter-documentation-stuff/wiki/smb-mode) with some requirements:
 - The file SMBCONFIG.DAT should have the IP address with it's port.
 
-- The file SMBCONFIG.DAT should have 3 lines, first one for IP and share name, and the other two for user and password (the last two can be empty, but should be there).  
+- The file SMBCONFIG.DAT should have 3 lines, first one for IP and share name, and the other two for user and password (the last two can be empty, but should be there).
+
+- The file IPCONFIG.DAT should be present, even if the tutorial says it's optional, in order to edit it (duh).
   
 SMBCONFIG.DAT example:  
 ```
@@ -14,7 +16,6 @@ SMBCONFIG.DAT example:
 user 
 password
 ```
-- The file IPCONFIG.DAT should be present, even if the tutorial says it's optional, in order to edit it (duh).
 
 ### Limitations
 The software does not have a text input, only number modification. Because of the former, this software can only update IP addresses and not share names, users and passwords.
