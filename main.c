@@ -31,7 +31,7 @@ int main(){
 	u32 new_pad;
 
 	x = y = 0;							// Initialize some variables...
-	menu = old_menu = last_menu = 0;
+	menu = old_menu = last_menu = MAIN_MENU;
 	ipa = ipb = ipc = ipd = ipe = 0;
 	neta = netb = netc = netd = 0;
 	gatea = gateb = gatec = gated = 0;
@@ -85,17 +85,17 @@ int main(){
 								break;
 						}
 						x = y = 0;						// resets the position of the cursor for the next screen.
-						old_menu = last_menu = 0;		// saves the menu number.
-						menu = 1;						// changes to the next menu.
+						old_menu = last_menu = MAIN_MENU;		// saves the menu number.
+						menu = FILE_MENU;						// changes to the next menu.
 					}
 					if(new_pad & PAD_TRIANGLE) {		// if triangle is pressed it shows the info screen.
-						old_menu = last_menu = 0;
-						menu = 2;
+						old_menu = last_menu = MAIN_MENU;
+						menu = INFO_MENU;
 					}
 					if(new_pad & PAD_START) {			// if start is pressed it takes you to the exit confirmation.
 						x = y = 0;
-						old_menu = last_menu = 0;
-						menu = 11;
+						old_menu = last_menu = MAIN_MENU;
+						menu = EXIT_MENU;
 					}
 					break;
 				case FILE_MENU:			// file selection menu.
@@ -125,36 +125,36 @@ int main(){
 									fscanf(loadedcfg,"%d.%d.%d.%d:%d %s\n%s\n%s", &ipa, &ipb, &ipc, &ipd, &ipe, share, username, smbpassword);
 									fclose(loadedcfg);
 									x = y = 0;
-									old_menu = last_menu = 1;
-									menu = 20;
+									old_menu = last_menu = FILE_MENU;
+									menu = SMB_EDIT_MENU;
 									break;
 								case 1:
 									fscanf(loadedcfg,"%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", &ipa, &ipb, &ipc, &ipd, &neta, &netb, &netc, &netd, &gatea, &gateb, &gatec, &gated);
 									fclose(loadedcfg);
 									x = y = 0;
-									old_menu = last_menu = 1;
-									menu = 21;
+									old_menu = last_menu = FILE_MENU;
+									menu = IP_EDIT_MENU;
 									break;
 							}
 						}
 						else{
 							x = y = 0;
-							old_menu = last_menu = 1;
-							menu = 30;
+							old_menu = last_menu = FILE_MENU;
+							menu = READ_ERROR;
 						}
 					}
 					if(new_pad & PAD_CIRCLE) {		// if circle is pressed then it will go back to the previous menu.
 						x = y = 0;
 						mcport = 0;
-						old_menu = last_menu = 1;
-						menu = 0;
+						old_menu = last_menu = FILE_MENU;
+						menu = MAIN_MENU;
 					}
 					break;
 				case INFO_MENU:								// info menu
 					if(new_pad & PAD_CIRCLE) {		// circle takes you back to the main menu
 						x = y = 0;
-						old_menu = last_menu = 2;
-						menu = 0;
+						old_menu = last_menu = INFO_MENU;
+						menu = MAIN_MENU;
 					}
 					break;
 				case SMB_EDIT_MENU:			// SMB editing menu.
@@ -190,13 +190,13 @@ int main(){
 						smbpassword[0] = '\0';
 						path[0] = '\0';
 						file_chosen[0] = '\0';
-						old_menu = last_menu = 20;
-						menu = 1;
+						old_menu = last_menu = SMB_EDIT_MENU;
+						menu = FILE_MENU;
 					}
 					if(new_pad & PAD_CROSS) {			// If cross gets pressed, the write confirmation menu gets shown
 						x = y = 0;
-						old_menu = last_menu = 20;
-						menu = 10;
+						old_menu = last_menu = SMB_EDIT_MENU;
+						menu = WRITE_MENU;
 					}
 					break;
 				case IP_EDIT_MENU:			// IPCONFIG editing menu.
@@ -282,13 +282,13 @@ int main(){
 						smbpassword[0] = '\0';
 						path[0] = '\0';
 						file_chosen[0] = '\0';
-						old_menu = last_menu = 21;
-						menu = 1;
+						old_menu = last_menu = IP_EDIT_MENU;
+						menu = FILE_MENU;
 					}
 					if(new_pad & PAD_CROSS) {			// If cross gets pressed, the write confirmation menu gets shown
 						x = y = 0;
-						old_menu = last_menu = 21;
-						menu = 10;
+						old_menu = last_menu = IP_EDIT_MENU;
+						menu = WRITE_MENU;
 					}
 					break;
 				case WRITE_MENU:									// Write confirmation menu
@@ -308,33 +308,33 @@ int main(){
 								case 20:
 									fprintf(loadedcfg,"%d.%d.%d.%d:%d %s\n%s\n%s", ipa, ipb, ipc, ipd, ipe, share, username, smbpassword);
 									fclose(loadedcfg);
-									old_menu = last_menu = 10;
-									menu = 20;
+									old_menu = last_menu = WRITE_MENU;
+									menu = SMB_EDIT_MENU;
 									break;
 								case 21:
 									fprintf(loadedcfg,"%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", ipa, ipb, ipc, ipd, neta, netb, netc, netd, gatea, gateb, gatec, gated);
 									fclose(loadedcfg);
-									old_menu = last_menu = 10;
-									menu = 21;
+									old_menu = last_menu = WRITE_MENU;
+									menu = IP_EDIT_MENU;
 									break;
 							}
 						}
 						else{								// If there is an issue writing the file then the error screen is shown
 							x = y = 0;
-							old_menu = last_menu = 10;
-							menu = 31;
+							old_menu = last_menu = WRITE_MENU;
+							menu = WRITE_ERROR;
 						}
  					}
 					if((new_pad & PAD_CIRCLE) || ((new_pad & PAD_CROSS) && y == 1)) {		// If either circle or the No option are chosen then it returns to the previous menu
 						x = y = 0;
 						switch(last_menu){
 							case 20:
-								old_menu = last_menu = 10;
-								menu = 20;
+								old_menu = last_menu = WRITE_MENU;
+								menu = SMB_EDIT_MENU;
 								break;
 							case 21:
-								old_menu = last_menu = 10;
-								menu = 21;
+								old_menu = last_menu = WRITE_MENU;
+								menu = IP_EDIT_MENU;
 								break;
 						}
 					}
@@ -353,28 +353,28 @@ int main(){
 					}
 					if((new_pad & PAD_CIRCLE) || ((new_pad & PAD_CROSS) && y == 1)) {		//If circle or No are selected then it goes back to the main menu
 						x = y = 0;
-						old_menu = last_menu = 11;
-						menu = 0;
+						old_menu = last_menu = EXIT_MENU;
+						menu = MAIN_MENU;
 					}
 					break;
 				case READ_ERROR:			//Error file does not exist dialog.
 					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
 						path[0] = '\0';
 						file_chosen[0] = '\0';
-						old_menu = last_menu = 30;
-						menu = 1;
+						old_menu = last_menu = READ_ERROR;
+						menu = FILE_MENU;
 					}
 					break;
 				case WRITE_ERROR:			// Error can't write file dialog.
 					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
 						switch(*file_chosen[0]){
 							case 'S':
-								old_menu = last_menu = 31;
-								menu = 20;
+								old_menu = last_menu = WRITE_ERROR;
+								menu = SMB_EDIT_MENU;
 								break;
 							case 'I':
-								old_menu = last_menu = 31;
-								menu = 21;
+								old_menu = last_menu = WRITE_ERROR;
+								menu = IP_EDIT_MENU;
 								break;
 						}
 					}
