@@ -48,7 +48,7 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ matrix.package }}
+        name: ${{ github.event.repository.name }}
         path: |
              ${{ github.event.repository.name }}.7z
             
