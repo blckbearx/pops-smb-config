@@ -19,8 +19,8 @@ jobs:
 
     - uses: actions/checkout@v2
     - run: |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch --prune --unshallow
 
     - name: Get short SHA
       id: slug
@@ -28,21 +28,21 @@ jobs:
 
     - name: Compile
       run: |
-        make
+          make
 
     - name: repack
       run: |
-        SCH=${GITHUB_SHA::7}
-        DATEE=`date '+[%Y-%m-%d]'`
-        mkdir ${{ github.event.repository.name }}-$DATEE/
-        mv LICENSE ${{ github.event.repository.name }}-$DATEE/LICENSE.TXT
-        mv pops-smb-config-packed.elf ${{ github.event.repository.name }}-$DATEE/POPS_SMB_CONFIG.ELF
-        mv README.md ${{ github.event.repository.name }}-$DATEE/README.md
-        cd ${{ github.event.repository.name }}-$DATEE/
-        echo title=${{ github.event.repository.name }}-$DATEE-$SCH>title.cfg
-        echo boot=POPS_SMB_CONFIG.ELF>>title.cfg
-        cd ..
-        7z a -t7z -r ${{ github.event.repository.name }}.7z ${{ github.event.repository.name }}-$DATEE/*
+          SCH=${GITHUB_SHA::7}
+          DATEE=`date '+[%Y-%m-%d]'`
+          mkdir ${{ github.event.repository.name }}-$DATEE/
+          mv LICENSE ${{ github.event.repository.name }}-$DATEE/LICENSE.TXT
+          mv pops-smb-config-packed.elf ${{ github.event.repository.name }}-$DATEE/POPS_SMB_CONFIG.ELF
+          mv README.md ${{ github.event.repository.name }}-$DATEE/README.md
+          cd ${{ github.event.repository.name }}-$DATEE/
+          echo title=${{ github.event.repository.name }}-$DATEE-$SCH>title.cfg
+          echo boot=POPS_SMB_CONFIG.ELF>>title.cfg
+          cd ..
+          7z a -t7z -r ${{ github.event.repository.name }}.7z ${{ github.event.repository.name }}-$DATEE/*
         
     - name: Upload artifact
       if: ${{ success() }}
@@ -50,14 +50,14 @@ jobs:
       with:
         name: ${{ matrix.package }}
         path: |
-            ${{ github.event.repository.name }}.7z
+             ${{ github.event.repository.name }}.7z
             
-      - name: Create release
-        if: github.ref == 'refs/heads/master'
-        uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          title: ${{ github.event.repository.name }}-latest
-          files: |
-                ${{ github.event.repository.name }}.7z
+    - name: Create release
+      if: github.ref == 'refs/heads/master'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        title: ${{ github.event.repository.name }}-latest
+        files: |
+              ${{ github.event.repository.name }}.7z
