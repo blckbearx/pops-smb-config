@@ -1,0 +1,63 @@
+
+name: "compile and release"
+on:
+  workflow_dispatch:
+#  pull_request:
+  repository_dispatch:
+    types: [release_workflow]
+  push:
+
+jobs:
+  compile_and_release:
+    runs-on: ubuntu-latest
+    container: ps2dev/ps2dev:latest
+    steps:
+
+    - name: Install dependencies
+      run: |
+        apk add build-base git p7zip
+
+    - uses: actions/checkout@v2
+    - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git fetch --prune --unshallow
+
+    - name: Get short SHA
+      id: slug
+      run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
+    - name: Compile
+      run: |
+        make
+
+    - name: repack
+      run: |
+        SCH=${GITHUB_SHA::7}
+        DATEE=`date '+[%Y-%m-%d]'`
+        mkdir ${{ github.event.repository.name }}-$DATEE/
+        mv LICENSE ${{ github.event.repository.name }}-$DATEE/LICENSE.TXT
+        mv pops-smb-config-packed.elf ${{ github.event.repository.name }}-$DATEE/POPS_SMB_CONFIG.ELF
+        mv README.md ${{ github.event.repository.name }}-$DATEE/README.md
+        cd ${{ github.event.repository.name }}-$DATEE/
+        echo title=${{ github.event.repository.name }}-$DATEE-$SCH>title.cfg
+        echo boot=POPS_SMB_CONFIG.ELF>>title.cfg
+        cd ..
+        7z a -t7z -r ${{ github.event.repository.name }}.7z ${{ github.event.repository.name }}-$DATEE/*
+        
+    - name: Upload artifact
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.package }}
+        path: |
+            ${{ github.event.repository.name }}.7z
+            
+      - name: Create release
+        if: github.ref == 'refs/heads/master'
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          title: ${{ github.event.repository.name }}-latest
+          files: |
+                ${{ github.event.repository.name }}.7z
