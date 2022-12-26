@@ -24,15 +24,33 @@ The software does not have a text input, only number modification. Because of th
 The software is pretty self explanatory but here it goes anyways.  
 First you're asked which Memory Card you want to work on, then you're asked which file you want to edit (either SMBCONFIG.DAT or IPCONFIG.DAT), after this, the chosen file is loaded and you can edit it.  
 Editing is done by moving the cursor with the D-Pad and changing the values with R1/R2 and L1/L2.  
-After editing, by pressing CROSS you can save the file or you can always go back by pressing CIRCLE.  
+After editing, by pressing CROSS you can save the file or you can always go back by pressing CIRCLE.
+
+If you want to be able to exit to both OpenPS2Loader or wLaunchELF you need to have them in in one of a few different locations listed below, I tried to check for the most common ones:
+
+For OPL:
+- mc?:/OPL/OPNPS2LD.ELF
+- mc?:/APPS/OPNPS2LD.ELF
+
+For wLE:
+- mc?:/BOOT/BOOT.ELF
+- mc?:/APPS/ULE.ELF
+
+The "?" sign stands for either 0 for slot 1 and 1 for slot 2.
 
 ### To-do
 - [ ] Add some sort of text input in order to edit Share name, user and password.
 - [ ] Add the option to install the POPStarter network files in order to perform a first installation directly on the console (preferably after sorting out the text input option so the files can be installed with the user's desired Share name, user and password).
-- [ ] Add an option to either exit to OPL or wLE/uLE (will need to make a list of possible common installation paths for each software in order to check for it's existence and exit to either one of those).
+- [x] Add an option to either exit to OPL or wLE/uLE (will need to make a list of possible common installation paths for each software in order to check for it's existence and exit to either one of those).
 
 ### Screenshots
-<img src="https://user-images.githubusercontent.com/58561253/158274333-1540dd8d-d45c-4759-929a-319359bd624f.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274336-dcf16797-d050-4aae-a6ff-fc0e9f8808a8.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274338-915ea7e4-19cc-40a8-bbd4-58abece218d7.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274341-4483fc62-da20-4d12-83ef-3e42410b66cf.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274344-0fe4425c-ef8f-402b-bbe7-639c92458d9b.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274346-2ffeec73-2cba-4898-a4f0-1840381b3c7d.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274347-10500025-f3c1-433b-87c5-f6c65fda792d.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274349-9f65afd7-5846-4e64-910e-fb1da89ce3cc.png" width="320" height="224" />
+<img src="https://user-images.githubusercontent.com/58561253/209583861-4c9826ac-9929-4746-98cd-329eb21f5277.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274336-dcf16797-d050-4aae-a6ff-fc0e9f8808a8.png" width="320" height="224" />
+
+<img src="https://user-images.githubusercontent.com/58561253/209583951-5dcfdda5-706c-43da-957d-563287c26f96.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/209583954-2dd37815-e599-4557-bd41-5e9d54a835fa.png" width="320" height="224" />
+
+<img src="https://user-images.githubusercontent.com/58561253/158274344-0fe4425c-ef8f-402b-bbe7-639c92458d9b.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274346-2ffeec73-2cba-4898-a4f0-1840381b3c7d.png" width="320" height="224" />
+
+<img src="https://user-images.githubusercontent.com/58561253/158274347-10500025-f3c1-433b-87c5-f6c65fda792d.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/209583982-51983de2-9029-4fb1-a090-d77e85a90021.png" width="320" height="224" />
 
 ## How to build
 - Download and build the latest [PS2SDK](https://github.com/ps2dev/ps2dev)
