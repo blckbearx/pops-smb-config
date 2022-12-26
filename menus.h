@@ -9,3 +9,4 @@
 #define IP_EDIT_MENU 21
 #define READ_ERROR 30
 #define WRITE_ERROR 31
+#define EXIT_ERROR 32

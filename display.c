@@ -36,17 +36,15 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 	switch(menu){
 		case MAIN_MENU:
 			scr_printf("\n\n  Choose Memory Card to work on:\n\n\n");
-			scr_printf("    > Memory Card on Slot 1 <\n");
-			scr_printf("\n");
+			scr_printf("    > Memory Card on Slot 1 <\n\n");
 			scr_printf("      Memory Card on Slot 2\n");
 			scr_setXY(0, 24);
 			scr_printf("  Use UP and DOWN to navigate                            Press TRIANGLE for info\n");
-			scr_printf("  Press X to select an option                     Press START to exit to Browser");
+			scr_printf("  Press X to select an option                                Press START to exit");
 			break;
 		case FILE_MENU:
 			scr_printf("\n\n  Choose the file you want to edit from Slot %d:\n\n\n", mcport+1);
-			scr_printf("    > SMBCONFIG.DAT <\n");
-			scr_printf("\n");
+			scr_printf("    > SMBCONFIG.DAT <\n\n");
 			scr_printf("      IPCONFIG.DAT\n");
 			scr_setXY(0, 24);
 			scr_printf("  Use UP and DOWN to navigate\n\n");
@@ -65,7 +63,7 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 		case SMB_EDIT_MENU:
 			scr_printf("\n\n  Editing SMBCONFIG.DAT on Slot %d:\n\n\n", mcport+1);
 			scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d\n", ipa, ipb, ipc, ipd, ipe);
-			scr_printf("                  ^\n");
+			scr_printf("                   ^\n");
 			scr_printf("      Share: %s\n\n      User: %s\n\n      Password: %s\n", share, username, smbpassword);
 			scr_setXY(0, 24);
 			scr_printf("  Use <- and -> to move the cursor                        Press X to save config\n");
@@ -74,7 +72,7 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 		case IP_EDIT_MENU:
 			scr_printf("\n\n  Editing IPCONFIG.DAT on Slot %d:\n\n\n", mcport+1);
 			scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n", ipa, ipb, ipc, ipd);
-			scr_printf("                  ^\n");
+			scr_printf("                   ^\n");
 			scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n", neta, netb, netc, netd);
 			scr_printf("\n");
 			scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n", gatea, gateb, gatec, gated);
@@ -90,8 +88,8 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 			scr_printf("  Press X to select an option                                 Press O to go back");
 			break;
 		case EXIT_MENU:
-			scr_printf("\n\n  Do you want to exit to the Browser?\n\n\n");
-			scr_printf("    > Yes <\n\n      No\n");
+			scr_printf("\n\n  Choose the software you want to exit to:\n\n\n");
+			scr_printf("    > Browser <\n\n      OpenPS2Loader  \n\n      wLaunchELF  \n");
 			scr_setXY(0, 24);
 			scr_printf("  Use UP and DOWN to navigate\n\n");
 			scr_printf("  Press X to select an option                                 Press O to go back");
@@ -110,6 +108,13 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 			scr_printf("  Press X to confirm\n\n");
 			scr_printf("  Press O to go back");
 			break;
+		case EXIT_ERROR:
+			scr_printf("\n\n  Error: Can't load %s from either Memory Card.\n         The file does not exist or there are no Memory Cards present.\n\n\n", file_chosen);
+			scr_printf("    > OK <\n");
+			scr_setXY(0, 24);
+			scr_printf("  Press X to confirm\n\n");
+			scr_printf("  Press O to go back");
+			break;
 	}
 }
 
@@ -117,13 +122,11 @@ void updateMain(int y){
 	scr_setXY(0, 8);
 	switch (y){
 		case 0:
-			scr_printf("    > Memory Card on Slot 1 <\n");
-			scr_printf("\n");
+			scr_printf("    > Memory Card on Slot 1 <\n\n");
 			scr_printf("      Memory Card on Slot 2  \n");
 			break;
 		case 1:
-			scr_printf("      Memory Card on Slot 1  \n");
-			scr_printf("\n");
+			scr_printf("      Memory Card on Slot 1  \n\n");
 			scr_printf("    > Memory Card on Slot 2 <\n");
 			break;
 	}
@@ -133,13 +136,11 @@ void updateSelectedFile(int y){
 	scr_setXY(0, 8);
 	switch (y){
 		case 0:
-			scr_printf("    > SMBCONFIG.DAT <\n");
-			scr_printf("\n");
+			scr_printf("    > SMBCONFIG.DAT <\n\n");
 			scr_printf("      IPCONFIG.DAT  \n");
 			break;
 		case 1:
-			scr_printf("      SMBCONFIG.DAT  \n");
-			scr_printf("\n");
+			scr_printf("      SMBCONFIG.DAT  \n\n");
 			scr_printf("    > IPCONFIG.DAT <\n");
 			break;
 	}
@@ -242,6 +243,21 @@ void updateYN(int y){
 			break;
 		case 1:
 			scr_printf("      Yes  \n\n    > No <\n");
+			break;
+	}
+}
+
+void updateExit(int y){
+	scr_setXY(0, 8);
+	switch (y){
+		case 0:
+			scr_printf("    > Browser <\n\n      OpenPS2Loader  \n\n      wLaunchELF\n");
+			break;
+		case 1:
+			scr_printf("      Browser  \n\n    > OpenPS2Loader <\n\n      wLaunchELF\n");
+			break;
+		case 2:
+			scr_printf("      Browser  \n\n      OpenPS2Loader  \n\n    > wLaunchELF <\n");
 			break;
 	}
 }
