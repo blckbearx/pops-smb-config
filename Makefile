@@ -2,7 +2,7 @@ EE_BIN = pops-smb-config.elf
 EE_BIN_STRIPPED = pops-smb-config-stripped.elf
 EE_BIN_PACKED = pops-smb-config-packed.elf
 EE_OBJS = main.o pad.o modules.o display.o math.o fileio.o
-EE_LIBS = -ldebug -lc -lpad
+EE_LIBS = -ldebug -lc -lpad -lpatches
 
 all: $(EE_BIN_PACKED)
 

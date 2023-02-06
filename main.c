@@ -3,6 +3,7 @@
 #include <sifrpc.h>
 #include <stdio.h>
 #include <libpad.h>
+#include <sbv_patches.h>
 #include "pad.h"
 #include "modules.h"
 #include "display.h"
@@ -38,6 +39,7 @@ int main(){
 	gatea = gateb = gatec = gated = 0;
 	mcport = 0;
 
+	sbv_patch_disable_prefix_check();
 	SifInitRpc(0);
 
 	loadModules();		// Load IOP modules
@@ -355,15 +357,19 @@ int main(){
 					if((new_pad & PAD_CROSS) && y == 1) {		// If OPL is selected and X is pressed then console launches OpenPS2Loader.
 						*file_chosen = "OPNPS2LD.ELF";
 						if(checkFile("mc0:/OPL/OPNPS2LD.ELF")){
+							padEnd();
 							ExitElf("mc0:/OPL/OPNPS2LD.ELF", "mc0:/OPL/");
 						}
 						else if(checkFile("mc1:/OPL/OPNPS2LD.ELF")){
+							padEnd();
 							ExitElf("mc1:/OPL/OPNPS2LD.ELF", "mc1:/OPL/");
 						}
 						else if(checkFile("mc0:/APPS/OPNPS2LD.ELF")){
+							padEnd();
 							ExitElf("mc0:/APPS/OPNPS2LD.ELF", "mc0:/APPS/");
 						}
 						else if(checkFile("mc1:/APPS/OPNPS2LD.ELF")){
+							padEnd();
 							ExitElf("mc1:/APPS/OPNPS2LD.ELF", "mc1:/APPS/");
 						}
 						else{
@@ -375,15 +381,19 @@ int main(){
 					if((new_pad & PAD_CROSS) && y == 2) {		// If wLE is selected and X is pressed then console launches wLaunchELF.
 						*file_chosen = "BOOT.ELF or ULE.ELF";
 						if(checkFile("mc0:/BOOT/BOOT.ELF")){
+							padEnd();
 							ExitElf("mc0:/BOOT/BOOT.ELF", "mc0:/BOOT/");
 						}
 						else if(checkFile("mc1:/BOOT/BOOT.ELF")){
+							padEnd();
 							ExitElf("mc1:/BOOT/BOOT.ELF", "mc1:/BOOT/");
 						}
 						else if(checkFile("mc0:/APPS/ULE.ELF")){
+							padEnd();
 							ExitElf("mc0:/APPS/ULE.ELF", "mc0:/APPS/");
 						}
 						else if(checkFile("mc1:/APPS/ULE.ELF")){
+							padEnd();
 							ExitElf("mc1:/APPS/ULE.ELF", "mc1:/APPS/");
 						}
 						else{
