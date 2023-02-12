@@ -28,8 +28,8 @@
 #define TRIANGLE_GREEN 0x95dc2a
 #define SQUARE_PINK 0xc38edb
 #define WHITE 0xffffff
-#define DARK_GREY 0x303030
-#define GREY 0x808080
+#define DARK_GREY 0x404040
+#define GREY 0x909090
 #define RED 0x0000ff
 
 void initDisplay(){
