@@ -44,13 +44,13 @@ The "?" sign stands for either 0 for slot 1 and 1 for slot 2.
 - [x] Add an option to either exit to OPL or wLE/uLE (will need to make a list of possible common installation paths for each software in order to check for it's existence and exit to either one of those).
 
 ### Screenshots
-<img src="https://user-images.githubusercontent.com/58561253/209583861-4c9826ac-9929-4746-98cd-329eb21f5277.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274336-dcf16797-d050-4aae-a6ff-fc0e9f8808a8.png" width="320" height="224" />
+<img src="https://user-images.githubusercontent.com/58561253/218330029-45b06aca-7916-4e4a-8f73-9bc55c06993e.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/218330031-1464b085-f43e-4289-8872-46523bc277ef.png" width="320" height="224" />
 
-<img src="https://user-images.githubusercontent.com/58561253/209583951-5dcfdda5-706c-43da-957d-563287c26f96.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/209583954-2dd37815-e599-4557-bd41-5e9d54a835fa.png" width="320" height="224" />
+<img src="https://user-images.githubusercontent.com/58561253/218330036-e14ef2e9-622e-4da3-855c-48feb696db37.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/218330037-197d09a4-7d34-483b-b32c-565811a29741.png" width="320" height="224" />
 
-<img src="https://user-images.githubusercontent.com/58561253/158274344-0fe4425c-ef8f-402b-bbe7-639c92458d9b.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/158274346-2ffeec73-2cba-4898-a4f0-1840381b3c7d.png" width="320" height="224" />
+<img src="https://user-images.githubusercontent.com/58561253/218330039-f6f76cb2-106e-497d-83c6-1d1b48d46382.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/218330042-26c54c1d-2c6e-4b63-a72c-cd1eb76e72a9.png" width="320" height="224" />
 
-<img src="https://user-images.githubusercontent.com/58561253/158274347-10500025-f3c1-433b-87c5-f6c65fda792d.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/209583982-51983de2-9029-4fb1-a090-d77e85a90021.png" width="320" height="224" />
+<img src="https://user-images.githubusercontent.com/58561253/218330044-83de6391-3287-4621-925c-ca46fb919a4e.png" width="320" height="224" /> <img src="https://user-images.githubusercontent.com/58561253/218330046-81b87fbd-3f6f-48a0-8932-b1b4722117e6.png" width="320" height="224" />
 
 ## How to build
 - Download and build the latest [PS2SDK](https://github.com/ps2dev/ps2dev)
