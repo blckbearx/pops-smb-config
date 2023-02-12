@@ -91,7 +91,7 @@ int main(){
 						old_menu = last_menu = MAIN_MENU;		// saves the menu number.
 						menu = FILE_MENU;						// changes to the next menu.
 					}
-					if(new_pad & PAD_TRIANGLE) {		// if triangle is pressed it shows the info screen.
+					if(new_pad & PAD_SELECT) {		// if select is pressed it shows the info screen.
 						old_menu = last_menu = MAIN_MENU;
 						menu = INFO_MENU;
 					}
