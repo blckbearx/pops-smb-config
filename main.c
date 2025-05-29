@@ -39,8 +39,9 @@ int main(){
 	gatea = gateb = gatec = gated = 0;
 	mcport = 0;
 
-	sbv_patch_disable_prefix_check();
+
 	SifInitRpc(0);
+	sbv_patch_disable_prefix_check();
 
 	loadModules();		// Load IOP modules
 	padInit(0);
