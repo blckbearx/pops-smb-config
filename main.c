@@ -18,9 +18,9 @@ int mcport;							// 0 for port 1 and 1 for port 2.
 int ipa, ipb, ipc, ipd, ipe;		// IP numbers ipa.ipb.ipc.ipd:ipe
 int neta, netb, netc, netd;			// Netmask numbers neta.netb.netc.netd
 int gatea, gateb, gatec, gated;		// Gateway numbers gatea.gateb.gatec.gated
-char share[80] = {'\0'};			// SAMBA Share name, according to spec max string length is 80 chars.
-char username[255] = {'\0'}; 		// SAMBA Share user, according to spec max string length is 255 chars.
-char smbpassword[255] = {'\0'}; 	// SAMBA Share password, I assume max string length is 255 (why would anyone use a longer password anyways).
+char share[81] = {'\0'};			// SAMBA Share name, according to spec max string length is 80 chars.
+char username[256] = {'\0'}; 		// SAMBA Share user, according to spec max string length is 255 chars.
+char smbpassword[256] = {'\0'}; 	// SAMBA Share password, I assume max string length is 255 (why would anyone use a longer password anyways).
 char file_chosen[20] = {'\0'};		// The chosen file to edit, either SMBCONFIG.DAT or IPCONFIG.DAT
 char path[MAX_PATH] = {'\0'};		// Path to read from or write to
 
@@ -404,7 +404,7 @@ int main(){
 							menu = EXIT_ERROR;
 						}
 					}
-					if((new_pad & PAD_CIRCLE) || ((new_pad & PAD_CROSS) && y == 1)) {		//If circle or No are selected then it goes back to the main menu
+					if(new_pad & PAD_CIRCLE) {		//If circle is pressed then it goes back to the main menu
 						x = y = 0;
 						old_menu = last_menu = EXIT_MENU;
 						menu = MAIN_MENU;
