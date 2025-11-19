@@ -140,7 +140,13 @@ int main(){
 									menu = SMB_EDIT_MENU;
 									break;
 								case 1:
-									fscanf(loadedcfg,"%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", &ipa, &ipb, &ipc, &ipd, &neta, &netb, &netc, &netd, &gatea, &gateb, &gatec, &gated);
+									if (fscanf(loadedcfg, "%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", &ipa, &ipb, &ipc, &ipd, &neta, &netb, &netc, &netd, &gatea, &gateb, &gatec, &gated) != 12) {
+										fclose(loadedcfg);
+										x = y = 0;
+										old_menu = last_menu = FILE_MENU;
+										menu = READ_CORR_ERROR;
+										break;
+									}
 									fclose(loadedcfg);
 									x = y = 0;
 									old_menu = last_menu = FILE_MENU;
