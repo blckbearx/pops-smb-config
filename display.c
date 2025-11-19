@@ -178,6 +178,24 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 			scr_setfontcolor(WHITE);
 			scr_printf(" to go back");
 			break;
+		case READ_CORR_ERROR:
+			scr_setfontcolor(RED);
+			scr_printf("\n\n  Error:");
+			scr_setfontcolor(WHITE);
+			scr_printf(" Can't load %s from Memory Card on Slot %d.\n         The file is corrupted or incomplete.\n\n\n", file_chosen, mcport+1);
+			scr_printf("    > OK <\n");
+			scr_setXY(0, 24);
+			scr_printf("  Press ");
+			scr_setfontcolor(CROSS_BLUE);
+			scr_printf("X");
+			scr_setfontcolor(WHITE);
+			scr_printf(" to confirm\n\n");
+			scr_printf("  Press ");
+			scr_setfontcolor(CIRCLE_RED);
+			scr_printf("O");
+			scr_setfontcolor(WHITE);
+			scr_printf(" to go back");
+			break;
 		case WRITE_ERROR:
 			scr_setfontcolor(RED);
 			scr_printf("\n\n  Error:");

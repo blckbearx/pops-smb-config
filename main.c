@@ -127,7 +127,13 @@ int main(){
 						if(loadedcfg != NULL){
 							switch(y){
 								case 0:
-									fscanf(loadedcfg,"%d.%d.%d.%d:%d %s\n%s\n%s", &ipa, &ipb, &ipc, &ipd, &ipe, share, username, smbpassword);
+									if (fscanf(loadedcfg, "%d.%d.%d.%d:%d %80s\n%255s\n%255s", &ipa, &ipb, &ipc, &ipd, &ipe, share, username, smbpassword) != 8) {
+										fclose(loadedcfg);
+										x = y = 0;
+										old_menu = last_menu = FILE_MENU;
+										menu = READ_CORR_ERROR;
+										break;
+									}
 									fclose(loadedcfg);
 									x = y = 0;
 									old_menu = last_menu = FILE_MENU;
@@ -415,6 +421,14 @@ int main(){
 						path[0] = '\0';
 						file_chosen[0] = '\0';
 						old_menu = last_menu = READ_ERROR;
+						menu = FILE_MENU;
+					}
+					break;
+				case READ_CORR_ERROR:			//Error file is corrupt dialog.
+					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
+						path[0] = '\0';
+						file_chosen[0] = '\0';
+						old_menu = last_menu = READ_CORR_ERROR;
 						menu = FILE_MENU;
 					}
 					break;
