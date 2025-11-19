@@ -316,13 +316,13 @@ int main(){
 						loadedcfg = fopen(path, "w");
 						if(loadedcfg != NULL){
 							switch(last_menu){
-								case 20:
+								case SMB_EDIT_MENU:
 									fprintf(loadedcfg,"%d.%d.%d.%d:%d %s\n%s\n%s", ipa, ipb, ipc, ipd, ipe, share, username, smbpassword);
 									fclose(loadedcfg);
 									old_menu = last_menu = WRITE_MENU;
 									menu = SMB_EDIT_MENU;
 									break;
-								case 21:
+								case IP_EDIT_MENU:
 									fprintf(loadedcfg,"%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", ipa, ipb, ipc, ipd, neta, netb, netc, netd, gatea, gateb, gatec, gated);
 									fclose(loadedcfg);
 									old_menu = last_menu = WRITE_MENU;
@@ -339,11 +339,11 @@ int main(){
 					if((new_pad & PAD_CIRCLE) || ((new_pad & PAD_CROSS) && y == 1)) {		// If either circle or the No option are chosen then it returns to the previous menu
 						x = y = 0;
 						switch(last_menu){
-							case 20:
+							case SMB_EDIT_MENU:
 								old_menu = last_menu = WRITE_MENU;
 								menu = SMB_EDIT_MENU;
 								break;
-							case 21:
+							case IP_EDIT_MENU:
 								old_menu = last_menu = WRITE_MENU;
 								menu = IP_EDIT_MENU;
 								break;
