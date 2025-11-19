@@ -11,18 +11,7 @@
 #include "math.h"
 #include "menus.h"
 #include "fileio.h"
-
-#define MAX_PATH 260
-
-int mcport;							// 0 for port 1 and 1 for port 2.
-int ipa, ipb, ipc, ipd, ipe;		// IP numbers ipa.ipb.ipc.ipd:ipe
-int neta, netb, netc, netd;			// Netmask numbers neta.netb.netc.netd
-int gatea, gateb, gatec, gated;		// Gateway numbers gatea.gateb.gatec.gated
-char share[81] = {'\0'};			// SAMBA Share name, according to spec max string length is 80 chars.
-char username[256] = {'\0'}; 		// SAMBA Share user, according to spec max string length is 255 chars.
-char smbpassword[256] = {'\0'}; 	// SAMBA Share password, I assume max string length is 255 (why would anyone use a longer password anyways).
-char file_chosen[20] = {'\0'};		// The chosen file to edit, either SMBCONFIG.DAT or IPCONFIG.DAT
-char path[MAX_PATH] = {'\0'};		// Path to read from or write to
+#include "config.h"
 
 int main(){
 	int ret;
@@ -32,14 +21,11 @@ int main(){
 	u32 paddata;
 	u32 old_pad = 0;
 	u32 new_pad;
+	app_state_t state;				// Single structure containing all application state
 
 	x = y = 0;							// Initialize some variables...
 	menu = old_menu = last_menu = MAIN_MENU;
-	ipa = ipb = ipc = ipd = ipe = 0;
-	neta = netb = netc = netd = 0;
-	gatea = gateb = gatec = gated = 0;
-	mcport = 0;
-
+	init_app_state(&state);				// Initialize all config data at once
 
 	SifInitRpc(0);
 	sbv_patch_disable_prefix_check();
@@ -54,7 +40,7 @@ int main(){
 	initializePad(port, slot);
 
 	initDisplay();
-	displayMenu(menu, mcport, ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, share, username, smbpassword, file_chosen);
+	displayMenu(menu, state.mcport, &state.smb, &state.ipconf, state.file_chosen);
 
 	for (;;){
 		ret = padRead(port, slot, &buttons); // port, slot, buttons
@@ -66,7 +52,7 @@ int main(){
 			old_pad = paddata;
 
 			if(old_menu != menu){				// only draw the menu when it should change, if menu doen't change then it doesn't get drawn again.
-				displayMenu(menu, mcport, ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, share, username, smbpassword, file_chosen);
+				displayMenu(menu, state.mcport, &state.smb, &state.ipconf, state.file_chosen);
 				old_menu = menu;
 			}
 
@@ -81,14 +67,7 @@ int main(){
 						updateMain(y);
 					}
 					if(new_pad & PAD_CROSS) {						// If cross is pressed, depending on what option is selected it set's the MC port to either slot 1 or slot 2.
-						switch(y){
-							case 0:
-								mcport = 0;
-								break;
-							case 1:
-								mcport = 1;
-								break;
-						}
+						state.mcport = y;  // y is either 0 or 1
 						x = y = 0;						// resets the position of the cursor for the next screen.
 						old_menu = last_menu = MAIN_MENU;		// saves the menu number.
 						menu = FILE_MENU;						// changes to the next menu.
@@ -113,56 +92,61 @@ int main(){
 						updateSelectedFile(y);
 					}
 					if(new_pad & PAD_CROSS) {				// If cross is pressed, depending on the selected option, it will load and read the file and proceed to the next menu. If the file does not exist then it will show an error.
-						FILE *loadedcfg;
+						int read_result;
 						switch(y){
 							case 0:
-								strcpy(file_chosen, "SMBCONFIG.DAT");
+								strcpy(state.file_chosen, "SMBCONFIG.DAT");
 								break;
 							case 1:
-								strcpy(file_chosen, "IPCONFIG.DAT");
+								strcpy(state.file_chosen, "IPCONFIG.DAT");
 								break;
 						}
-						sprintf(path, "mc%d:/POPSTARTER/%s", mcport, file_chosen);
-						loadedcfg = fopen(path, "r");
-						if(loadedcfg != NULL){
-							switch(y){
-								case 0:
-									if (fscanf(loadedcfg, "%d.%d.%d.%d:%d %80s\n%255s\n%255s", &ipa, &ipb, &ipc, &ipd, &ipe, share, username, smbpassword) != 8) {
-										fclose(loadedcfg);
-										x = y = 0;
-										old_menu = last_menu = FILE_MENU;
-										menu = READ_CORR_ERROR;
-										break;
-									}
-									fclose(loadedcfg);
+						sprintf(state.path, "mc%d:/POPSTARTER/%s", state.mcport, state.file_chosen);
+
+						switch(y){
+							case 0:
+								read_result = read_smb_config(state.path, &state.smb);
+								if (read_result == 0) {
+									// Success
 									x = y = 0;
 									old_menu = last_menu = FILE_MENU;
 									menu = SMB_EDIT_MENU;
-									break;
-								case 1:
-									if (fscanf(loadedcfg, "%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", &ipa, &ipb, &ipc, &ipd, &neta, &netb, &netc, &netd, &gatea, &gateb, &gatec, &gated) != 12) {
-										fclose(loadedcfg);
-										x = y = 0;
-										old_menu = last_menu = FILE_MENU;
-										menu = READ_CORR_ERROR;
-										break;
-									}
-									fclose(loadedcfg);
+								} else if (read_result == -2) {
+									// Corrupt file
+									x = y = 0;
+									old_menu = last_menu = FILE_MENU;
+									menu = READ_CORR_ERROR;
+								} else {
+									// File not found
+									x = y = 0;
+									old_menu = last_menu = FILE_MENU;
+									menu = READ_ERROR;
+								}
+								break;
+							case 1:
+								read_result = read_ip_config(state.path, &state.ipconf);
+								if (read_result == 0) {
+									// Success
 									x = y = 0;
 									old_menu = last_menu = FILE_MENU;
 									menu = IP_EDIT_MENU;
-									break;
-							}
-						}
-						else{
-							x = y = 0;
-							old_menu = last_menu = FILE_MENU;
-							menu = READ_ERROR;
+								} else if (read_result == -2) {
+									// Corrupt file
+									x = y = 0;
+									old_menu = last_menu = FILE_MENU;
+									menu = READ_CORR_ERROR;
+								} else {
+									// File not found
+									x = y = 0;
+									old_menu = last_menu = FILE_MENU;
+									menu = READ_ERROR;
+								}
+								break;
 						}
 					}
 					if(new_pad & PAD_CIRCLE) {		// if circle is pressed then it will go back to the previous menu.
 						x = y = 0;
-						mcport = 0;
+						state.mcport = 0;
 						old_menu = last_menu = FILE_MENU;
 						menu = MAIN_MENU;
 					}
@@ -177,36 +161,49 @@ int main(){
 				case SMB_EDIT_MENU:			// SMB editing menu.
 					if((new_pad & PAD_LEFT) && x > 0) {											// When the arrows are pressed, the UI gets updated.
 						x--;
-						updateSMB(ipa, ipb, ipc, ipd, ipe, share, username, smbpassword, x);
+						updateSMB(&state.smb, x);
 					}
 					if((new_pad & PAD_RIGHT) && x < 4) {
 						x++;
-						updateSMB(ipa, ipb, ipc, ipd, ipe, share, username, smbpassword, x);
+						updateSMB(&state.smb, x);
 					}
 					if(new_pad & PAD_R1) {														// R1, L1, R2 and L2 are the buttons responsible for changing the IP values. When pressed, the math gets done and the UI gets updated with the new values.
-						plusOne(&ipa, &ipb, &ipc, &ipd, &ipe, x);
-						updateSMB(ipa, ipb, ipc, ipd, ipe, share, username, smbpassword, x);
+						if (x == 4) {
+							plusOne(&state.smb.port, x);  // Port is a single int, not array
+						} else {
+							plusOne(state.smb.ip, x);
+						}
+						updateSMB(&state.smb, x);
 					}
 					if(new_pad & PAD_L1) {
-						subsOne(&ipa, &ipb, &ipc, &ipd, &ipe, x);
-						updateSMB(ipa, ipb, ipc, ipd, ipe, share, username, smbpassword, x);
+						if (x == 4) {
+							subsOne(&state.smb.port, x);
+						} else {
+							subsOne(state.smb.ip, x);
+						}
+						updateSMB(&state.smb, x);
 					}
 					if(new_pad & PAD_L2) {
-						subsTen(&ipa, &ipb, &ipc, &ipd, &ipe, x);
-						updateSMB(ipa, ipb, ipc, ipd, ipe, share, username, smbpassword, x);
+						if (x == 4) {
+							subsTen(&state.smb.port, x);
+						} else {
+							subsTen(state.smb.ip, x);
+						}
+						updateSMB(&state.smb, x);
 					}
 					if(new_pad & PAD_R2) {
-						plusTen(&ipa, &ipb, &ipc, &ipd, &ipe, x);
-						updateSMB(ipa, ipb, ipc, ipd, ipe, share, username, smbpassword, x);
+						if (x == 4) {
+							plusTen(&state.smb.port, x);
+						} else {
+							plusTen(state.smb.ip, x);
+						}
+						updateSMB(&state.smb, x);
 					}
 					if(new_pad & PAD_CIRCLE) {				// If circle is pressed the variables get reset and the previous menu gets loaded
 						x = y = 0;
-						ipa = ipb = ipc = ipd = ipe = 0;
-						share[0] = '\0';
-						username[0] = '\0';
-						smbpassword[0] = '\0';
-						path[0] = '\0';
-						file_chosen[0] = '\0';
+						init_smb_config(&state.smb);
+						state.path[0] = '\0';
+						state.file_chosen[0] = '\0';
 						old_menu = last_menu = SMB_EDIT_MENU;
 						menu = FILE_MENU;
 					}
@@ -219,86 +216,81 @@ int main(){
 				case IP_EDIT_MENU:			// IPCONFIG editing menu.
 					if((new_pad & PAD_LEFT) && x > 0) {																		// When the arrows are pressed, the UI gets updated.
 						x--;
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if((new_pad & PAD_RIGHT) && x < 3) {
 						x++;
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if((new_pad & PAD_UP) && y > 0) {
 						y--;
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if((new_pad & PAD_DOWN) && y < 2) {
 						y++;
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if(new_pad & PAD_R1) {												// R1, L1, R2 and L2 are the buttons responsible for changing the IP values. When pressed, the math gets done and the UI gets updated with the new values.
 						switch(y){
 							case 0:
-								plusOne(&ipa, &ipb, &ipc, &ipd, &ipe, x);
+								plusOne(state.ipconf.ip, x);
 								break;
 							case 1:
-								plusOne(&neta, &netb, &netc, &netd, &ipe, x);
+								plusOne(state.ipconf.netmask, x);
 								break;
 							case 2:
-								plusOne(&gatea, &gateb, &gatec, &gated, &ipe, x);
+								plusOne(state.ipconf.gateway, x);
 								break;
 						}
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if(new_pad & PAD_L1) {
 						switch(y){
 							case 0:
-								subsOne(&ipa, &ipb, &ipc, &ipd, &ipe, x);
+								subsOne(state.ipconf.ip, x);
 								break;
 							case 1:
-								subsOne(&neta, &netb, &netc, &netd, &ipe, x);
+								subsOne(state.ipconf.netmask, x);
 								break;
 							case 2:
-								subsOne(&gatea, &gateb, &gatec, &gated, &ipe, x);
+								subsOne(state.ipconf.gateway, x);
 								break;
 						}
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if(new_pad & PAD_L2) {
 						switch(y){
 							case 0:
-								subsTen(&ipa, &ipb, &ipc, &ipd, &ipe, x);
+								subsTen(state.ipconf.ip, x);
 								break;
 							case 1:
-								subsTen(&neta, &netb, &netc, &netd, &ipe, x);
+								subsTen(state.ipconf.netmask, x);
 								break;
 							case 2:
-								subsTen(&gatea, &gateb, &gatec, &gated, &ipe, x);
+								subsTen(state.ipconf.gateway, x);
 								break;
 						}
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if(new_pad & PAD_R2) {
 						switch(y){
 							case 0:
-								plusTen(&ipa, &ipb, &ipc, &ipd, &ipe, x);
+								plusTen(state.ipconf.ip, x);
 								break;
 							case 1:
-								plusTen(&neta, &netb, &netc, &netd, &ipe, x);
+								plusTen(state.ipconf.netmask, x);
 								break;
 							case 2:
-								plusTen(&gatea, &gateb, &gatec, &gated, &ipe, x);
+								plusTen(state.ipconf.gateway, x);
 								break;
 						}
-						updateIPCONF(ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, x, y);
+						updateIPCONF(&state.ipconf, x, y);
 					}
 					if(new_pad & PAD_CIRCLE) {					// If circle is pressed the variables get reset and the previous menu gets loaded
 						x = y = 0;
-						ipa = ipb = ipc = ipd = ipe = 0;
-						neta = netb = netc = netd = 0;
-						gatea = gateb = gatec = gated = 0;
-						share[0] = '\0';
-						username[0] = '\0';
-						smbpassword[0] = '\0';
-						path[0] = '\0';
-						file_chosen[0] = '\0';
+						init_ip_config(&state.ipconf);
+						state.path[0] = '\0';
+						state.file_chosen[0] = '\0';
 						old_menu = last_menu = IP_EDIT_MENU;
 						menu = FILE_MENU;
 					}
@@ -318,28 +310,30 @@ int main(){
 						updateYN(y);
 					}
 					if((new_pad & PAD_CROSS) && y == 0) {		// When X is pressed and the chosen option is Yes then it writes the new file
-						FILE *loadedcfg;
-						loadedcfg = fopen(path, "w");
-						if(loadedcfg != NULL){
-							switch(last_menu){
-								case SMB_EDIT_MENU:
-									fprintf(loadedcfg,"%d.%d.%d.%d:%d %s\n%s\n%s", ipa, ipb, ipc, ipd, ipe, share, username, smbpassword);
-									fclose(loadedcfg);
+						int write_result;
+						switch(last_menu){
+							case SMB_EDIT_MENU:
+								write_result = write_smb_config(state.path, &state.smb);
+								if (write_result == 0) {
 									old_menu = last_menu = WRITE_MENU;
 									menu = SMB_EDIT_MENU;
-									break;
-								case IP_EDIT_MENU:
-									fprintf(loadedcfg,"%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", ipa, ipb, ipc, ipd, neta, netb, netc, netd, gatea, gateb, gatec, gated);
-									fclose(loadedcfg);
+								} else {
+									x = y = 0;
+									old_menu = last_menu = WRITE_MENU;
+									menu = WRITE_ERROR;
+								}
+								break;
+							case IP_EDIT_MENU:
+								write_result = write_ip_config(state.path, &state.ipconf);
+								if (write_result == 0) {
 									old_menu = last_menu = WRITE_MENU;
 									menu = IP_EDIT_MENU;
-									break;
-							}
-						}
-						else{								// If there is an issue writing the file then the error screen is shown
-							x = y = 0;
-							old_menu = last_menu = WRITE_MENU;
-							menu = WRITE_ERROR;
+								} else {
+									x = y = 0;
+									old_menu = last_menu = WRITE_MENU;
+									menu = WRITE_ERROR;
+								}
+								break;
 						}
  					}
 					if((new_pad & PAD_CIRCLE) || ((new_pad & PAD_CROSS) && y == 1)) {		// If either circle or the No option are chosen then it returns to the previous menu
@@ -369,7 +363,7 @@ int main(){
 						Exit(0);
 					}
 					if((new_pad & PAD_CROSS) && y == 1) {		// If OPL is selected and X is pressed then console launches OpenPS2Loader.
-						strcpy(file_chosen, "OPNPS2LD.ELF");
+						strcpy(state.file_chosen, "OPNPS2LD.ELF");
 						if(checkFile("mc0:/OPL/OPNPS2LD.ELF")){
 							padEnd();
 							ExitElf("mc0:/OPL/OPNPS2LD.ELF", "mc0:/OPL/");
@@ -393,7 +387,7 @@ int main(){
 						}
 					}
 					if((new_pad & PAD_CROSS) && y == 2) {		// If wLE is selected and X is pressed then console launches wLaunchELF.
-						strcpy(file_chosen, "BOOT.ELF or ULE.ELF");
+						strcpy(state.file_chosen, "BOOT.ELF or ULE.ELF");
 						if(checkFile("mc0:/BOOT/BOOT.ELF")){
 							padEnd();
 							ExitElf("mc0:/BOOT/BOOT.ELF", "mc0:/BOOT/");
@@ -424,23 +418,23 @@ int main(){
 					break;
 				case READ_ERROR:			//Error file does not exist dialog.
 					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
-						path[0] = '\0';
-						file_chosen[0] = '\0';
+						state.path[0] = '\0';
+						state.file_chosen[0] = '\0';
 						old_menu = last_menu = READ_ERROR;
 						menu = FILE_MENU;
 					}
 					break;
 				case READ_CORR_ERROR:			//Error file is corrupt dialog.
 					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
-						path[0] = '\0';
-						file_chosen[0] = '\0';
+						state.path[0] = '\0';
+						state.file_chosen[0] = '\0';
 						old_menu = last_menu = READ_CORR_ERROR;
 						menu = FILE_MENU;
 					}
 					break;
 				case WRITE_ERROR:			// Error can't write file dialog.
 					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
-						switch(file_chosen[0]){
+						switch(state.file_chosen[0]){
 							case 'S':
 								old_menu = last_menu = WRITE_ERROR;
 								menu = SMB_EDIT_MENU;

@@ -3,9 +3,10 @@
 #include <string.h>
 #include "menus.h"
 #include "version.h"
+#include "config.h"
 
 //80x28 characters in the screen
-/* List of menus:
+/* List of menus (see menus.h for enum definitions):
  * MAIN_MENU - MC Selection
  * FILE_MENU - File selection menu
  * INFO_MENU - Info Screen
@@ -39,7 +40,7 @@ void initDisplay(){
 	scr_clear();		// clear the screen just to be safe and then draw the first menu.
 }
 
-void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int ipe, int neta, int netb, int netc, int netd, int gatea, int gateb, int gatec, int gated, char *share, char *username, char *smbpassword, char *file_chosen){
+void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_t *ipconf, const char *file_chosen){
 	scr_setXY(0, 0);
 	scr_clear();
 	scr_setfontcolor(GREY);
@@ -97,9 +98,11 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 			break;
 		case SMB_EDIT_MENU:
 			scr_printf("\n\n  Editing SMBCONFIG.DAT on Slot %d:\n\n\n", mcport+1);
-			scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d\n", ipa, ipb, ipc, ipd, ipe);
+			scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d\n",
+			           smb->ip[0], smb->ip[1], smb->ip[2], smb->ip[3], smb->port);
 			scr_printf("                   ^\n");
-			scr_printf("      Share: %s\n\n      User: %s\n\n      Password: %s\n", share, username, smbpassword);
+			scr_printf("      Share: %s\n\n      User: %s\n\n      Password: %s\n",
+			           smb->share, smb->username, smb->password);
 			scr_setXY(0, 24);
 			scr_printf("  Use <- and -> to move the cursor                        Press ");
 			scr_setfontcolor(CROSS_BLUE);
@@ -114,11 +117,14 @@ void displayMenu(int menu, int mcport, int ipa, int ipb, int ipc, int ipd, int i
 			break;
 		case IP_EDIT_MENU:
 			scr_printf("\n\n  Editing IPCONFIG.DAT on Slot %d:\n\n\n", mcport+1);
-			scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n", ipa, ipb, ipc, ipd);
+			scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n",
+			           ipconf->ip[0], ipconf->ip[1], ipconf->ip[2], ipconf->ip[3]);
 			scr_printf("                   ^\n");
-			scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n", neta, netb, netc, netd);
+			scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n",
+			           ipconf->netmask[0], ipconf->netmask[1], ipconf->netmask[2], ipconf->netmask[3]);
 			scr_printf("\n");
-			scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n", gatea, gateb, gatec, gated);
+			scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n",
+			           ipconf->gateway[0], ipconf->gateway[1], ipconf->gateway[2], ipconf->gateway[3]);
 			scr_setXY(0, 24);
 			scr_printf("  Use <- and -> to move the cursor                        Press ");
 			scr_setfontcolor(CROSS_BLUE);
@@ -264,9 +270,10 @@ void updateSelectedFile(int y){
 	}
 }
 
-void updateSMB(int ipa, int ipb, int ipc, int ipd, int ipe, char *share, char *username, char *smbpassword, int x){
+void updateSMB(const smb_config_t *smb, int x){
 	scr_setXY(0, 8);
-	scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d\n", ipa, ipb, ipc, ipd, ipe);
+	scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d\n",
+	           smb->ip[0], smb->ip[1], smb->ip[2], smb->ip[3], smb->port);
 	switch(x){
 		case 0:
 			scr_printf("                   ^");
@@ -286,10 +293,11 @@ void updateSMB(int ipa, int ipb, int ipc, int ipd, int ipe, char *share, char *u
 	}
 }
 
-void updateIPCONF(int ipa, int ipb, int ipc, int ipd, int ipe, int neta, int netb, int netc, int netd, int gatea, int gateb, int gatec, int gated, int x, int y){
+void updateIPCONF(const ip_config_t *ipconf, int x, int y){
 	scr_setXY(0, 8);
 	if(y == 0){
-		scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n", ipa, ipb, ipc, ipd);
+		scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n",
+		           ipconf->ip[0], ipconf->ip[1], ipconf->ip[2], ipconf->ip[3]);
 		switch(x){
 			case 0:
 				scr_printf("                   ^\n");
@@ -306,11 +314,13 @@ void updateIPCONF(int ipa, int ipb, int ipc, int ipd, int ipe, int neta, int net
 		}
 	}
 	else{
-		scr_printf("      IP Address: %03d.%03d.%03d.%03d  \n", ipa, ipb, ipc, ipd);
+		scr_printf("      IP Address: %03d.%03d.%03d.%03d  \n",
+		           ipconf->ip[0], ipconf->ip[1], ipconf->ip[2], ipconf->ip[3]);
 		scr_printf("\n");
 	}
 	if(y == 1){
-		scr_printf("    > Netmask:    %03d.%03d.%03d.%03d <\n", neta, netb, netc, netd);
+		scr_printf("    > Netmask:    %03d.%03d.%03d.%03d <\n",
+		           ipconf->netmask[0], ipconf->netmask[1], ipconf->netmask[2], ipconf->netmask[3]);
 		switch(x){
 			case 0:
 				scr_printf("                   ^\n");
@@ -327,11 +337,13 @@ void updateIPCONF(int ipa, int ipb, int ipc, int ipd, int ipe, int neta, int net
 		}
 	}
 	else{
-		scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n", neta, netb, netc, netd);
+		scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n",
+		           ipconf->netmask[0], ipconf->netmask[1], ipconf->netmask[2], ipconf->netmask[3]);
 		scr_printf("\n");
 	}
 	if(y == 2){
-		scr_printf("    > Gateway:    %03d.%03d.%03d.%03d <\n", gatea, gateb, gatec, gated);
+		scr_printf("    > Gateway:    %03d.%03d.%03d.%03d <\n",
+		           ipconf->gateway[0], ipconf->gateway[1], ipconf->gateway[2], ipconf->gateway[3]);
 		switch(x){
 			case 0:
 				scr_printf("                   ^\n");
@@ -348,7 +360,8 @@ void updateIPCONF(int ipa, int ipb, int ipc, int ipd, int ipe, int neta, int net
 		}
 	}
 	else{
-		scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n", gatea, gateb, gatec, gated);
+		scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n",
+		           ipconf->gateway[0], ipconf->gateway[1], ipconf->gateway[2], ipconf->gateway[3]);
 		scr_printf("\n");
 	}
 }
