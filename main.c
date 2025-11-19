@@ -307,7 +307,7 @@ int main(){
 					}
 					if((new_pad & PAD_CROSS) && y == 0) {		// When X is pressed and the chosen option is Yes then it writes the new file
 						FILE *loadedcfg;
-						loadedcfg = fopen(path, "r+");
+						loadedcfg = fopen(path, "w");
 						if(loadedcfg != NULL){
 							switch(last_menu){
 								case 20:
