@@ -6,16 +6,17 @@
 
 //80x28 characters in the screen
 /* List of menus:
- * 0 - Main menu (MC Selection)
- * 1 - File selection menu
- * 2 - Info Screen
- * 10 - Write confirmation
- * 11 - Exit confirmation
- * 20 - SMBCONFIG editing
- * 21 - IPCONFIG editing
- * 30 - Error: File does not exist/cannot read
- * 31 - Error: can't save/file cannot be accessed for writing
- * 32 - Error: can't find executable.
+ * MAIN_MENU - MC Selection
+ * FILE_MENU - File selection menu
+ * INFO_MENU - Info Screen
+ * WRITE_MENU - Write confirmation
+ * EXIT_MENU - Exit confirmation
+ * SMB_EDIT_MENU - SMBCONFIG editing
+ * IP_EDIT_MENU - IPCONFIG editing
+ * READ_ERROR - File does not exist/cannot read
+ * READ_CORR_ERROR - File is corrupt or incomplete
+ * WRITE_ERROR - Can't save/file cannot be accessed for writing
+ * EXIT_ERROR - Can't find executable
  */
 
 /* Menus are just text based, they get drawn whenever a new menu is chosen.
