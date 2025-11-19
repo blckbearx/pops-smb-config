@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <libpad.h>
 #include <sbv_patches.h>
+#include <string.h>
 #include "pad.h"
 #include "modules.h"
 #include "display.h"
@@ -20,7 +21,7 @@ int gatea, gateb, gatec, gated;		// Gateway numbers gatea.gateb.gatec.gated
 char share[80] = {'\0'};			// SAMBA Share name, according to spec max string length is 80 chars.
 char username[255] = {'\0'}; 		// SAMBA Share user, according to spec max string length is 255 chars.
 char smbpassword[255] = {'\0'}; 	// SAMBA Share password, I assume max string length is 255 (why would anyone use a longer password anyways).
-char *file_chosen[14] = {'\0'};		// The chosen file to edit, either SMBCONFIG.DAT or IPCONFIG.DAT
+char file_chosen[20] = {'\0'};		// The chosen file to edit, either SMBCONFIG.DAT or IPCONFIG.DAT
 char path[MAX_PATH] = {'\0'};		// Path to read from or write to
 
 int main(){
@@ -53,7 +54,7 @@ int main(){
 	initializePad(port, slot);
 
 	initDisplay();
-	displayMenu(menu, mcport, ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, share, username, smbpassword, *file_chosen);
+	displayMenu(menu, mcport, ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, share, username, smbpassword, file_chosen);
 
 	for (;;){
 		ret = padRead(port, slot, &buttons); // port, slot, buttons
@@ -65,7 +66,7 @@ int main(){
 			old_pad = paddata;
 
 			if(old_menu != menu){				// only draw the menu when it should change, if menu doen't change then it doesn't get drawn again.
-				displayMenu(menu, mcport, ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, share, username, smbpassword, *file_chosen);
+				displayMenu(menu, mcport, ipa, ipb, ipc, ipd, ipe, neta, netb, netc, netd, gatea, gateb, gatec, gated, share, username, smbpassword, file_chosen);
 				old_menu = menu;
 			}
 
@@ -115,13 +116,13 @@ int main(){
 						FILE *loadedcfg;
 						switch(y){
 							case 0:
-								*file_chosen = "SMBCONFIG.DAT";
+								strcpy(file_chosen, "SMBCONFIG.DAT");
 								break;
 							case 1:
-								*file_chosen = "IPCONFIG.DAT";
+								strcpy(file_chosen, "IPCONFIG.DAT");
 								break;
 						}
-						sprintf(path, "mc%d:/POPSTARTER/%s", mcport, *file_chosen);
+						sprintf(path, "mc%d:/POPSTARTER/%s", mcport, file_chosen);
 						loadedcfg = fopen(path, "r");
 						if(loadedcfg != NULL){
 							switch(y){
@@ -356,7 +357,7 @@ int main(){
 						Exit(0);
 					}
 					if((new_pad & PAD_CROSS) && y == 1) {		// If OPL is selected and X is pressed then console launches OpenPS2Loader.
-						*file_chosen = "OPNPS2LD.ELF";
+						strcpy(file_chosen, "OPNPS2LD.ELF");
 						if(checkFile("mc0:/OPL/OPNPS2LD.ELF")){
 							padEnd();
 							ExitElf("mc0:/OPL/OPNPS2LD.ELF", "mc0:/OPL/");
@@ -380,7 +381,7 @@ int main(){
 						}
 					}
 					if((new_pad & PAD_CROSS) && y == 2) {		// If wLE is selected and X is pressed then console launches wLaunchELF.
-						*file_chosen = "BOOT.ELF or ULE.ELF";
+						strcpy(file_chosen, "BOOT.ELF or ULE.ELF");
 						if(checkFile("mc0:/BOOT/BOOT.ELF")){
 							padEnd();
 							ExitElf("mc0:/BOOT/BOOT.ELF", "mc0:/BOOT/");
@@ -419,7 +420,7 @@ int main(){
 					break;
 				case WRITE_ERROR:			// Error can't write file dialog.
 					if((new_pad & PAD_CIRCLE) || (new_pad & PAD_CROSS)) {		// Circle or X take you back to the previous menu.
-						switch(*file_chosen[0]){
+						switch(file_chosen[0]){
 							case 'S':
 								old_menu = last_menu = WRITE_ERROR;
 								menu = SMB_EDIT_MENU;
