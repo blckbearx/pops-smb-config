@@ -364,21 +364,21 @@ int main(){
 					}
 					if((new_pad & PAD_CROSS) && y == 1) {		// If OPL is selected and X is pressed then console launches OpenPS2Loader.
 						strcpy(state.file_chosen, "OPNPS2LD.ELF");
-						if(checkFile("mc0:/OPL/OPNPS2LD.ELF")){
+						if(checkFile("mc0:/APP_OPL/OPNPS2LD.ELF")){
+							padEnd();
+							ExitElf("mc0:/APP_OPL/OPNPS2LD.ELF", "mc0:/APP_OPL/");
+						}
+						else if(checkFile("mc1:/APP_OPL/OPNPS2LD.ELF")){
+							padEnd();
+							ExitElf("mc1:/APP_OPL/OPNPS2LD.ELF", "mc1:/APP_OPL/");
+						}
+						else if(checkFile("mc0:/OPL/OPNPS2LD.ELF")){
 							padEnd();
 							ExitElf("mc0:/OPL/OPNPS2LD.ELF", "mc0:/OPL/");
 						}
 						else if(checkFile("mc1:/OPL/OPNPS2LD.ELF")){
 							padEnd();
 							ExitElf("mc1:/OPL/OPNPS2LD.ELF", "mc1:/OPL/");
-						}
-						else if(checkFile("mc0:/APPS/OPNPS2LD.ELF")){
-							padEnd();
-							ExitElf("mc0:/APPS/OPNPS2LD.ELF", "mc0:/APPS/");
-						}
-						else if(checkFile("mc1:/APPS/OPNPS2LD.ELF")){
-							padEnd();
-							ExitElf("mc1:/APPS/OPNPS2LD.ELF", "mc1:/APPS/");
 						}
 						else{
 							x = y = 0;
@@ -387,7 +387,7 @@ int main(){
 						}
 					}
 					if((new_pad & PAD_CROSS) && y == 2) {		// If wLE is selected and X is pressed then console launches wLaunchELF.
-						strcpy(state.file_chosen, "BOOT.ELF or ULE.ELF");
+						strcpy(state.file_chosen, "BOOT.ELF");
 						if(checkFile("mc0:/BOOT/BOOT.ELF")){
 							padEnd();
 							ExitElf("mc0:/BOOT/BOOT.ELF", "mc0:/BOOT/");
@@ -395,14 +395,6 @@ int main(){
 						else if(checkFile("mc1:/BOOT/BOOT.ELF")){
 							padEnd();
 							ExitElf("mc1:/BOOT/BOOT.ELF", "mc1:/BOOT/");
-						}
-						else if(checkFile("mc0:/APPS/ULE.ELF")){
-							padEnd();
-							ExitElf("mc0:/APPS/ULE.ELF", "mc0:/APPS/");
-						}
-						else if(checkFile("mc1:/APPS/ULE.ELF")){
-							padEnd();
-							ExitElf("mc1:/APPS/ULE.ELF", "mc1:/APPS/");
 						}
 						else{
 							x = y = 0;
