@@ -13,10 +13,64 @@
 #include "fileio.h"
 #include "config.h"
 
+/* Keyboard layouts and constants */
+static const char kb_lower[] =
+    "abcdefghijklm"
+    "nopqrstuvwxyz"
+    "0123456789   ";
+
+static const char kb_upper[] =
+    "ABCDEFGHIJKLM"
+    "NOPQRSTUVWXYZ"
+    "!@#$%^&*()-_="
+    "+[]{}|;:'\",./";
+
+#define KB_MAX_SHARE    80
+#define KB_MAX_USERNAME 255
+#define KB_MAX_PASSWORD 255
+
+/* Helper functions for keyboard menu */
+static const char *field_name(enum smb_field f){
+    switch(f){
+        case FIELD_SHARE:    return "Share";
+        case FIELD_USERNAME: return "User";
+        case FIELD_PASSWORD: return "Password";
+        default:             return "?";
+    }
+}
+
+static int field_max(enum smb_field f){
+    switch(f){
+        case FIELD_SHARE:    return KB_MAX_SHARE;
+        case FIELD_USERNAME: return KB_MAX_USERNAME;
+        case FIELD_PASSWORD: return KB_MAX_PASSWORD;
+        default:             return 0;
+    }
+}
+
+static char *field_buf(smb_config_t *smb, enum smb_field f){
+    switch(f){
+        case FIELD_SHARE:    return smb->share;
+        case FIELD_USERNAME: return smb->username;
+        case FIELD_PASSWORD: return smb->password;
+        default:             return smb->share;
+    }
+}
+
+static void kb_clamp(int *kb_x, int *kb_y, int upper_mode){
+    int rows   = upper_mode ? KB_UPPER_ROWS : KB_LOWER_ROWS;
+    int usable = upper_mode ? KB_UPPER_LEN  : KB_LOWER_LEN;
+    if(*kb_y >= rows) *kb_y = rows - 1;
+    while(*kb_y * KB_COLS + *kb_x >= usable && *kb_x > 0)
+        (*kb_x)--;
+}
+
 int main(){
 	int ret;
 	int port, slot;					// controller port and slot.
 	int menu, old_menu, last_menu, x, y;		// current menu, previous menu and cursor position (x, y).
+	int kb_x, kb_y, kb_upper_mode;
+    char kb_buf[256];
 	struct padButtonStatus buttons;
 	u32 paddata;
 	u32 old_pad = 0;
@@ -24,6 +78,8 @@ int main(){
 	app_state_t state;				// Single structure containing all application state
 
 	x = y = 0;							// Initialize some variables...
+	kb_x = kb_y = kb_upper_mode = 0;
+    kb_buf[0] = '\0';
 	menu = old_menu = last_menu = MAIN_MENU;
 	init_app_state(&state);				// Initialize all config data at once
 
@@ -51,10 +107,10 @@ int main(){
 			new_pad = paddata & ~old_pad;
 			old_pad = paddata;
 
-			if(old_menu != menu){				// only draw the menu when it should change, if menu doen't change then it doesn't get drawn again.
-				displayMenu(menu, state.mcport, &state.smb, &state.ipconf, state.file_chosen);
-				old_menu = menu;
-			}
+			if(menu != KEYBOARD_MENU && old_menu != menu){				// only draw the menu when it should change, if menu doen't change then it doesn't get drawn again.
+                displayMenu(menu, state.mcport, &state.smb, &state.ipconf, state.file_chosen);
+                old_menu = menu;
+            }
 
 			switch(menu){			// depending on the current menu, the functions vary. See display.c for al the menus.
 				case MAIN_MENU:				// main menu, MC port selection.
@@ -158,61 +214,163 @@ int main(){
 						menu = MAIN_MENU;
 					}
 					break;
-				case SMB_EDIT_MENU:			// SMB editing menu.
-					if((new_pad & PAD_LEFT) && x > 0) {											// When the arrows are pressed, the UI gets updated.
-						x--;
-						updateSMB(&state.smb, x);
-					}
-					if((new_pad & PAD_RIGHT) && x < 4) {
-						x++;
-						updateSMB(&state.smb, x);
-					}
-					if(new_pad & PAD_R1) {														// R1, L1, R2 and L2 are the buttons responsible for changing the IP values. When pressed, the math gets done and the UI gets updated with the new values.
-						if (x == 4) {
-							plusOne(&state.smb.port, x);  // Port is a single int, not array
-						} else {
-							plusOne(state.smb.ip, x);
-						}
-						updateSMB(&state.smb, x);
-					}
-					if(new_pad & PAD_L1) {
-						if (x == 4) {
-							subsOne(&state.smb.port, x);
-						} else {
-							subsOne(state.smb.ip, x);
-						}
-						updateSMB(&state.smb, x);
-					}
-					if(new_pad & PAD_L2) {
-						if (x == 4) {
-							subsTen(&state.smb.port, x);
-						} else {
-							subsTen(state.smb.ip, x);
-						}
-						updateSMB(&state.smb, x);
-					}
-					if(new_pad & PAD_R2) {
-						if (x == 4) {
-							plusTen(&state.smb.port, x);
-						} else {
-							plusTen(state.smb.ip, x);
-						}
-						updateSMB(&state.smb, x);
-					}
-					if(new_pad & PAD_CIRCLE) {				// If circle is pressed the variables get reset and the previous menu gets loaded
-						x = y = 0;
-						init_smb_config(&state.smb);
-						state.path[0] = '\0';
-						state.file_chosen[0] = '\0';
-						old_menu = last_menu = SMB_EDIT_MENU;
-						menu = FILE_MENU;
-					}
-					if(new_pad & PAD_CROSS) {			// If cross gets pressed, the write confirmation menu gets shown
-						x = y = 0;
-						old_menu = last_menu = SMB_EDIT_MENU;
-						menu = WRITE_MENU;
-					}
-					break;
+				case SMB_EDIT_MENU:
+                    if((new_pad & PAD_UP) && y > 0){
+                        y--;
+                        updateSMBEdit(&state.smb, x, y);
+                    }
+                    if((new_pad & PAD_DOWN) && y < 4){
+                        y++;
+                        updateSMBEdit(&state.smb, x, y);
+                    }
+
+                    if(y == 0){
+                        if((new_pad & PAD_LEFT) && x > 0){
+                            x--;
+                            updateSMBEdit(&state.smb, x, y);
+                        }
+                        if((new_pad & PAD_RIGHT) && x < 4){
+                            x++;
+                            updateSMBEdit(&state.smb, x, y);
+                        }
+                        if(new_pad & PAD_R1){
+                            if(x == 4) plusOne(&state.smb.port, x);
+                            else        plusOne(state.smb.ip, x);
+                            updateSMBEdit(&state.smb, x, y);
+                        }
+                        if(new_pad & PAD_L1){
+                            if(x == 4) subsOne(&state.smb.port, x);
+                            else        subsOne(state.smb.ip, x);
+                            updateSMBEdit(&state.smb, x, y);
+                        }
+                        if(new_pad & PAD_L2){
+                            if(x == 4) subsTen(&state.smb.port, x);
+                            else        subsTen(state.smb.ip, x);
+                            updateSMBEdit(&state.smb, x, y);
+                        }
+                        if(new_pad & PAD_R2){
+                            if(x == 4) plusTen(&state.smb.port, x);
+                            else        plusTen(state.smb.ip, x);
+                            updateSMBEdit(&state.smb, x, y);
+                        }
+                    }
+
+                    if(y >= 1 && y <= 3){
+                        if(new_pad & PAD_CROSS){
+                            switch(y){
+                                case 1: state.editing_field = FIELD_SHARE;    break;
+                                case 2: state.editing_field = FIELD_USERNAME; break;
+                                case 3: state.editing_field = FIELD_PASSWORD; break;
+                            }
+							strcpy(kb_buf, field_buf(&state.smb, state.editing_field));
+                            //strncpy(kb_buf, field_buf(&state.smb, state.editing_field), strlen(field_buf(&state.smb, state.editing_field)));
+                            //kb_buf[strlen(field_buf(&state.smb, state.editing_field))] = '\0';
+                            kb_x = kb_y = kb_upper_mode = 0;
+                            old_menu = last_menu = SMB_EDIT_MENU;
+                            menu = KEYBOARD_MENU;
+                            displayKeyboard(field_name(state.editing_field),
+                                            kb_buf, kb_x, kb_y, kb_upper_mode);
+                            old_menu = KEYBOARD_MENU;
+                        }
+                    }
+
+                    if(y == 4){
+                        if(new_pad & PAD_CROSS){
+                            x = y = 0;
+                            old_menu = last_menu = SMB_EDIT_MENU;
+                            menu = WRITE_MENU;
+                        }
+                    }
+
+                    if(new_pad & PAD_CIRCLE){
+                        x = y = 0;
+                        init_smb_config(&state.smb);
+                        state.path[0] = '\0';
+                        state.file_chosen[0] = '\0';
+                        old_menu = last_menu = SMB_EDIT_MENU;
+                        menu = FILE_MENU;
+                    }
+                    break;
+				case KEYBOARD_MENU:
+                {
+                    int rows   = kb_upper_mode ? KB_UPPER_ROWS : KB_LOWER_ROWS;
+                    int usable = kb_upper_mode ? KB_UPPER_LEN  : KB_LOWER_LEN;
+                    int changed = 0;
+
+                    if(new_pad & PAD_LEFT){
+                        if(kb_x > 0){ kb_x--; changed = 1; }
+                    }
+                    if(new_pad & PAD_RIGHT){
+                        int next = kb_y * KB_COLS + (kb_x + 1);
+                        if(kb_x < KB_COLS - 1 && next < usable){ kb_x++; changed = 1; }
+                    }
+                    if(new_pad & PAD_UP){
+                        if(kb_y > 0){ kb_y--; changed = 1; }
+                    }
+                    if(new_pad & PAD_DOWN){
+                        if(kb_y < rows - 1){
+                            int next = (kb_y + 1) * KB_COLS + kb_x;
+                            if(next < usable){ kb_y++; changed = 1; }
+                        }
+                    }
+
+                    if(new_pad & PAD_SELECT){
+                        kb_upper_mode = !kb_upper_mode;
+                        kb_clamp(&kb_x, &kb_y, kb_upper_mode);
+                        changed = 1;
+                    }
+
+                    if(new_pad & PAD_CROSS){
+                        int len = strlen(kb_buf);
+                        if(len < field_max(state.editing_field)){
+                            const char *layout = kb_upper_mode ? kb_upper : kb_lower;
+                            char ch = layout[kb_y * KB_COLS + kb_x];
+                            if(ch != ' '){
+                                kb_buf[len]     = ch;
+                                kb_buf[len + 1] = '\0';
+                                changed = 1;
+                            }
+                        }
+                    }
+
+                    if(new_pad & PAD_TRIANGLE){
+                        int len = strlen(kb_buf);
+                        if(len < field_max(state.editing_field)){
+                            kb_buf[len]     = ' ';
+                            kb_buf[len + 1] = '\0';
+                            changed = 1;
+                        }
+                    }
+
+                    if(new_pad & PAD_SQUARE){
+                        int len = strlen(kb_buf);
+                        if(len > 0){
+                            kb_buf[len - 1] = '\0';
+                            changed = 1;
+                        }
+                    }
+
+                    if(new_pad & PAD_START){
+						strcpy(field_buf(&state.smb, state.editing_field), kb_buf);
+                        //strncpy(field_buf(&state.smb, state.editing_field), kb_buf, strlen(kb_buf));
+                        //field_buf(&state.smb, state.editing_field)[strlen(kb_buf)] = '\0';
+                        x = y =0;
+                        menu = SMB_EDIT_MENU;
+                        old_menu = KEYBOARD_MENU;
+                    }
+
+                    if(new_pad & PAD_CIRCLE){
+                        x = y = 0;
+                        menu = SMB_EDIT_MENU;
+                        old_menu = KEYBOARD_MENU;
+                    }
+
+                    if(changed && menu == KEYBOARD_MENU){
+                        updateKeyboard(kb_buf, kb_x, kb_y, kb_upper_mode);
+                        old_menu = KEYBOARD_MENU;
+                    }
+                    break;
+                }
 				case IP_EDIT_MENU:			// IPCONFIG editing menu.
 					if((new_pad & PAD_LEFT) && x > 0) {																		// When the arrows are pressed, the UI gets updated.
 						x--;

@@ -1,5 +1,7 @@
 /* config.h */
 
+#include "menus.h"
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -26,6 +28,7 @@ typedef struct {
     int mcport;          // Memory card port (0 or 1)
     char file_chosen[20];
     char path[260];
+    enum smb_field editing_field;
 } app_state_t;
 
 // Helper functions for config management
