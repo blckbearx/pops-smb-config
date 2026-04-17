@@ -299,29 +299,6 @@ void updateSelectedFile(int y){
 	}
 }
 
-void updateSMB(const smb_config_t *smb, int x){
-	scr_setXY(0, 8);
-	scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d\n",
-	           smb->ip[0], smb->ip[1], smb->ip[2], smb->ip[3], smb->port);
-	switch(x){
-		case 0:
-			scr_printf("                   ^");
-			break;
-		case 1:
-			scr_printf("                       ^");
-			break;
-		case 2:
-			scr_printf("                           ^");
-			break;
-		case 3:
-			scr_printf("                               ^");
-			break;
-		case 4:
-			scr_printf("                                   ^");
-			break;
-	}
-}
-
 void updateSMBEdit(const smb_config_t *smb, int x, int y){
     scr_setXY(0, 8);
     if(y == 0){
