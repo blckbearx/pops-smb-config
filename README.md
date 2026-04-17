@@ -17,9 +17,6 @@ user
 password
 ```
 
-### Limitations
-The software does not have a text input, only number modification. Because of the former, this software can only update IP addresses and not share names, users and passwords.
-
 ### How to
 The software is pretty self explanatory but here it goes anyways.  
 First you're asked which Memory Card you want to work on, then you're asked which file you want to edit (either SMBCONFIG.DAT or IPCONFIG.DAT), after this, the chosen file is loaded and you can edit it.  
@@ -38,7 +35,7 @@ For wLE:
 The "?" sign stands for either 0 for slot 1 and 1 for slot 2.
 
 ### To-do
-- [ ] Add some sort of text input in order to edit Share name, user and password.
+- [x] Add some sort of text input in order to edit Share name, user and password.
 - [ ] Add the option to install the POPStarter network files in order to perform a first installation directly on the console (preferably after sorting out the text input option so the files can be installed with the user's desired Share name, user and password).
 - [x] Add an option to either exit to OPL or wLE/uLE (will need to make a list of possible common installation paths for each software in order to check for it's existence and exit to either one of those).
 
