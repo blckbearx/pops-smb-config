@@ -123,7 +123,7 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
             scr_printf("      Share:    %s\n\n", smb->share);
             scr_printf("      User:     %s\n\n", smb->username);
             scr_printf("      Password: %s\n\n\n", smb->password);
-            scr_printf("      Save.\n");
+            scr_printf("      Save\n");
             scr_setXY(0, 24);
             scr_printf("  Use the D-PAD to navigate                                  Press ");
 			scr_setfontcolor(CROSS_BLUE);
@@ -368,9 +368,9 @@ void updateSMBEdit(const smb_config_t *smb, int x, int y){
 
     scr_setXY(0, 17);
     if(y == 4)
-        scr_printf("    > Save. <\n");
+        scr_printf("    > Save <\n");
     else
-        scr_printf("      Save.  \n");
+        scr_printf("      Save  \n");
 }
 
 void displayKeyboard(const char *field_name, const char *buf, int kb_x, int kb_y, int upper_mode)
@@ -423,7 +423,7 @@ void displayKeyboard(const char *field_name, const char *buf, int kb_x, int kb_y
     scr_printf("________________________________________________________________________________");
 	scr_setXY(0, 24);
     scr_setfontcolor(WHITE);
-    scr_printf("  D-Pad: Move cursor              SELECT: Switch case              START: Save");
+    scr_printf("  D-PAD: Move cursor              SELECT: Switch case              START: Save");
 	scr_setXY(0, 26);
 	scr_printf("  ");
     scr_setfontcolor(CROSS_BLUE);

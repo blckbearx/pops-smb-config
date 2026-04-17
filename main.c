@@ -32,28 +32,40 @@ static const char kb_upper[] =
 /* Helper functions for keyboard menu */
 static const char *field_name(enum smb_field f){
     switch(f){
-        case FIELD_SHARE:    return "Share";
-        case FIELD_USERNAME: return "User";
-        case FIELD_PASSWORD: return "Password";
-        default:             return "?";
+        case FIELD_SHARE:    
+			return "Share";
+        case FIELD_USERNAME: 
+			return "User";
+        case FIELD_PASSWORD: 
+			return "Password";
+        default:             
+			return "?";
     }
 }
 
 static int field_max(enum smb_field f){
     switch(f){
-        case FIELD_SHARE:    return KB_MAX_SHARE;
-        case FIELD_USERNAME: return KB_MAX_USERNAME;
-        case FIELD_PASSWORD: return KB_MAX_PASSWORD;
-        default:             return 0;
+        case FIELD_SHARE:    
+			return KB_MAX_SHARE;
+        case FIELD_USERNAME: 
+			return KB_MAX_USERNAME;
+        case FIELD_PASSWORD: 
+			return KB_MAX_PASSWORD;
+        default:             
+			return 0;
     }
 }
 
 static char *field_buf(smb_config_t *smb, enum smb_field f){
     switch(f){
-        case FIELD_SHARE:    return smb->share;
-        case FIELD_USERNAME: return smb->username;
-        case FIELD_PASSWORD: return smb->password;
-        default:             return smb->share;
+        case FIELD_SHARE:    
+			return smb->share;
+        case FIELD_USERNAME: 
+			return smb->username;
+        case FIELD_PASSWORD: 
+			return smb->password;
+        default:             
+			return smb->share;
     }
 }
 
@@ -258,13 +270,17 @@ int main(){
                     if(y >= 1 && y <= 3){
                         if(new_pad & PAD_CROSS){
                             switch(y){
-                                case 1: state.editing_field = FIELD_SHARE;    break;
-                                case 2: state.editing_field = FIELD_USERNAME; break;
-                                case 3: state.editing_field = FIELD_PASSWORD; break;
+                                case 1: 
+									state.editing_field = FIELD_SHARE;
+									break;
+                                case 2: 
+									state.editing_field = FIELD_USERNAME;
+									break;
+                                case 3: 
+									state.editing_field = FIELD_PASSWORD;
+									break;
                             }
 							strcpy(kb_buf, field_buf(&state.smb, state.editing_field));
-                            //strncpy(kb_buf, field_buf(&state.smb, state.editing_field), strlen(field_buf(&state.smb, state.editing_field)));
-                            //kb_buf[strlen(field_buf(&state.smb, state.editing_field))] = '\0';
                             kb_x = kb_y = kb_upper_mode = 0;
                             old_menu = last_menu = SMB_EDIT_MENU;
                             menu = KEYBOARD_MENU;
@@ -352,8 +368,6 @@ int main(){
 
                     if(new_pad & PAD_START){
 						strcpy(field_buf(&state.smb, state.editing_field), kb_buf);
-                        //strncpy(field_buf(&state.smb, state.editing_field), kb_buf, strlen(kb_buf));
-                        //field_buf(&state.smb, state.editing_field)[strlen(kb_buf)] = '\0';
                         x = y =0;
                         menu = SMB_EDIT_MENU;
                         old_menu = KEYBOARD_MENU;
