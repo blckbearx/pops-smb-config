@@ -16,7 +16,14 @@ enum menu_codes {
 };
 
 enum smb_field {
+    FIELD_IP_ADDRESS,
     FIELD_SHARE,
     FIELD_USERNAME,
     FIELD_PASSWORD
+};
+
+enum ipconf_field {
+    FIELD_IPCONF_IP = 100,
+    FIELD_IPCONF_NETMASK,
+    FIELD_IPCONF_GATEWAY
 };

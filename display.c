@@ -61,12 +61,13 @@ void initDisplay(){
 void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_t *ipconf, const char *file_chosen){
 	scr_setXY(0, 0);
 	scr_clear();
+	scr_setXY(2, 1);
 	scr_setfontcolor(GREY);
-	scr_printf("\n  POPSTARTER SMB CONFIG TOOL %s\n", VERSION);
+	scr_printf("POPSTARTER SMB CONFIG TOOL %s\n", VERSION);
 	scr_setfontcolor(DARK_GREY);
 	scr_printf("________________________________________________________________________________");
 	scr_setXY(0, 22);
-	scr_printf("________________________________________________________________________________\n");
+	scr_printf("________________________________________________________________________________");
 	scr_setfontcolor(WHITE);
 	scr_setXY(0, 3);
 	switch(menu){
@@ -74,31 +75,37 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
 			scr_printf("\n\n  Choose Memory Card to work on:\n\n\n");
 			scr_printf("    > Memory Card on Slot 1 <\n\n");
 			scr_printf("      Memory Card on Slot 2\n");
-			scr_setXY(0, 24);
-			scr_printf("  Use the D-PAD to navigate                              Press SELECT for info");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
-			scr_setfontcolor(CROSS_BLUE);
-			scr_printf("X");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to select an option                              Press START to exit");
+			scr_setXY(2, 24);
+			scr_printf("Use the D-PAD to navigate");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
+            scr_setfontcolor(CROSS_BLUE);
+            scr_printf("X");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to choose");
+			scr_setXY(2, 26);
+			scr_printf("Press SELECT for info");
+			scr_setXY(59, 26);
+			scr_printf("Press START to exit");
 			break;
 		case FILE_MENU:
 			scr_printf("\n\n  Choose the file you want to edit from Slot %d:\n\n\n", mcport+1);
 			scr_printf("    > SMBCONFIG.DAT <\n\n");
 			scr_printf("      IPCONFIG.DAT\n");
-			scr_setXY(0, 24);
-			scr_printf("  Use the D-PAD to navigate");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
-			scr_setfontcolor(CROSS_BLUE);
-			scr_printf("X");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to select an option                               Press ");
-			scr_setfontcolor(CIRCLE_RED);
-			scr_printf("O");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to go back");
+			scr_setXY(2, 24);
+			scr_printf("Use the D-PAD to navigate");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
+            scr_setfontcolor(CROSS_BLUE);
+            scr_printf("X");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to choose");
+			scr_setXY(60, 26);
+            scr_printf("Press ");
+            scr_setfontcolor(CIRCLE_RED);
+            scr_printf("O");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to go back");
 			break;
 		case INFO_MENU:
 			scr_printf("\n\n  In order to use this software you need to already have the\n");
@@ -118,79 +125,82 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
 			break;
 		case SMB_EDIT_MENU:
             scr_printf("\n\n  Editing SMBCONFIG.DAT on Slot %d:\n\n\n", mcport+1);
-            scr_printf("    > IP Address: %03d.%03d.%03d.%03d:%03d <\n", smb->ip[0], smb->ip[1], smb->ip[2], smb->ip[3], smb->port);
-            scr_printf("                   ^\n");
+            scr_printf("    > IP Address: %s <\n\n", smb->ip_address);
             scr_printf("      Share:    %s\n\n", smb->share);
             scr_printf("      User:     %s\n\n", smb->username);
             scr_printf("      Password: %s\n\n\n", smb->password);
             scr_printf("      Save\n");
-            scr_setXY(0, 24);
-            scr_printf("  Use the D-PAD to navigate                                  Press ");
-			scr_setfontcolor(CROSS_BLUE);
+            scr_setXY(2, 24);
+            scr_printf("Use the D-PAD to navigate");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
+            scr_setfontcolor(CROSS_BLUE);
             scr_printf("X");
             scr_setfontcolor(WHITE);
             scr_printf(" to choose");
-			scr_setXY(0, 26);
-            scr_printf("  R1 = +1 / L1 = -1 / R2 = +10 / L2 = -10                   Press ");
-			scr_setfontcolor(CIRCLE_RED);
+			scr_setXY(60, 26);
+            scr_printf("Press ");
+            scr_setfontcolor(CIRCLE_RED);
             scr_printf("O");
             scr_setfontcolor(WHITE);
             scr_printf(" to go back");
             break;
 		case IP_EDIT_MENU:
 			scr_printf("\n\n  Editing IPCONFIG.DAT on Slot %d:\n\n\n", mcport+1);
-			scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n",
-			           ipconf->ip[0], ipconf->ip[1], ipconf->ip[2], ipconf->ip[3]);
-			scr_printf("                   ^\n");
-			scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n",
-			           ipconf->netmask[0], ipconf->netmask[1], ipconf->netmask[2], ipconf->netmask[3]);
-			scr_printf("\n");
-			scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n",
-			           ipconf->gateway[0], ipconf->gateway[1], ipconf->gateway[2], ipconf->gateway[3]);
-			scr_setXY(0, 24);
-			scr_printf("  Use the D-PAD to move the cursor                      Press ");
-			scr_setfontcolor(CROSS_BLUE);
-			scr_printf("X");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to save config");
-			scr_setXY(0, 26);
-			scr_printf("  R1 = +1 / L1 = -1 / R2 = +10 / L2 = -10                   Press ");
-			scr_setfontcolor(CIRCLE_RED);
-			scr_printf("O");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to go back");
+			scr_printf("    > IP Address: %s <\n\n", ipconf->ip_address);
+			scr_printf("      Netmask:    %s\n\n", ipconf->netmask);
+			scr_printf("      Gateway:    %s\n\n\n", ipconf->gateway);
+			scr_printf("      Save\n");
+			scr_setXY(2, 24);
+            scr_printf("Use the D-PAD to navigate");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
+            scr_setfontcolor(CROSS_BLUE);
+            scr_printf("X");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to choose");
+			scr_setXY(60, 26);
+            scr_printf("Press ");
+            scr_setfontcolor(CIRCLE_RED);
+            scr_printf("O");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to go back");
 			break;
 		case WRITE_MENU:
 			scr_printf("\n\n  Do you want to save %s to the Memory Card on Slot %d?\n\n\n", file_chosen, mcport+1);
 			scr_printf("    > Yes <\n\n      No\n");
-			scr_setXY(0, 24);
-			scr_printf("  Use the D-PAD to navigate");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
-			scr_setfontcolor(CROSS_BLUE);
-			scr_printf("X");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to select an option                                 Press ");
-			scr_setfontcolor(CIRCLE_RED);
-			scr_printf("O");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to go back");
+			scr_setXY(2, 24);
+            scr_printf("Use the D-PAD to navigate");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
+            scr_setfontcolor(CROSS_BLUE);
+            scr_printf("X");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to choose");
+			scr_setXY(60, 26);
+            scr_printf("Press ");
+            scr_setfontcolor(CIRCLE_RED);
+            scr_printf("O");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to go back");
 			break;
 		case EXIT_MENU:
 			scr_printf("\n\n  Choose the software you want to exit to:\n\n\n");
 			scr_printf("    > Browser <\n\n      OpenPS2Loader  \n\n      wLaunchELF  \n");
-			scr_setXY(0, 24);
-			scr_printf("  Use the D-PAD to navigate");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
-			scr_setfontcolor(CROSS_BLUE);
-			scr_printf("X");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to select an option                               Press ");
-			scr_setfontcolor(CIRCLE_RED);
-			scr_printf("O");
-			scr_setfontcolor(WHITE);
-			scr_printf(" to go back");
+			scr_setXY(2, 24);
+            scr_printf("Use the D-PAD to navigate");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
+            scr_setfontcolor(CROSS_BLUE);
+            scr_printf("X");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to choose");
+			scr_setXY(60, 26);
+            scr_printf("Press ");
+            scr_setfontcolor(CIRCLE_RED);
+            scr_printf("O");
+            scr_setfontcolor(WHITE);
+            scr_printf(" to go back");
 			break;
 		case READ_ERROR:
 			scr_setfontcolor(RED);
@@ -198,14 +208,14 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
 			scr_setfontcolor(WHITE);
 			scr_printf(" Can't load %s from Memory Card on Slot %d.\n         The file does not exist or Memory Card is not present.\n\n\n", file_chosen, mcport+1);
 			scr_printf("    > OK <\n");
-			scr_setXY(0, 24);
-			scr_printf("  Press ");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
 			scr_setfontcolor(CROSS_BLUE);
 			scr_printf("X");
 			scr_setfontcolor(WHITE);
-			scr_printf(" to confirm");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
+			scr_printf(" to choose");
+			scr_setXY(60, 26);
+			scr_printf("Press ");
 			scr_setfontcolor(CIRCLE_RED);
 			scr_printf("O");
 			scr_setfontcolor(WHITE);
@@ -217,14 +227,14 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
 			scr_setfontcolor(WHITE);
 			scr_printf(" Can't load %s from Memory Card on Slot %d.\n         The file is corrupted or incomplete.\n\n\n", file_chosen, mcport+1);
 			scr_printf("    > OK <\n");
-			scr_setXY(0, 24);
-			scr_printf("  Press ");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
 			scr_setfontcolor(CROSS_BLUE);
 			scr_printf("X");
 			scr_setfontcolor(WHITE);
-			scr_printf(" to confirm");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
+			scr_printf(" to choose");
+			scr_setXY(60, 26);
+			scr_printf("Press ");
 			scr_setfontcolor(CIRCLE_RED);
 			scr_printf("O");
 			scr_setfontcolor(WHITE);
@@ -236,14 +246,14 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
 			scr_setfontcolor(WHITE);
 			scr_printf(" Can't write %s to Memory Card on Slot %d.\n         The file cannot be accessed.\n\n\n", file_chosen, mcport+1);
 			scr_printf("    > OK <\n");
-			scr_setXY(0, 24);
-			scr_printf("  Press ");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
 			scr_setfontcolor(CROSS_BLUE);
 			scr_printf("X");
 			scr_setfontcolor(WHITE);
-			scr_printf(" to confirm");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
+			scr_printf(" to choose");
+			scr_setXY(60, 26);
+			scr_printf("Press ");
 			scr_setfontcolor(CIRCLE_RED);
 			scr_printf("O");
 			scr_setfontcolor(WHITE);
@@ -255,14 +265,14 @@ void displayMenu(int menu, int mcport, const smb_config_t *smb, const ip_config_
 			scr_setfontcolor(WHITE);
 			scr_printf(" Can't load %s from either Memory Card.\n         The file does not exist or there are no Memory Cards present.\n\n\n", file_chosen);
 			scr_printf("    > OK <\n");
-			scr_setXY(0, 24);
-			scr_printf("  Press ");
+			scr_setXY(61, 24);
+			scr_printf("Press ");
 			scr_setfontcolor(CROSS_BLUE);
 			scr_printf("X");
 			scr_setfontcolor(WHITE);
-			scr_printf(" to confirm");
-			scr_setXY(0, 26);
-			scr_printf("  Press ");
+			scr_printf(" to choose");
+			scr_setXY(60, 26);
+			scr_printf("Press ");
 			scr_setfontcolor(CIRCLE_RED);
 			scr_printf("O");
 			scr_setfontcolor(WHITE);
@@ -302,27 +312,9 @@ void updateSelectedFile(int y){
 void updateSMBEdit(const smb_config_t *smb, int x, int y){
     scr_setXY(0, 8);
     if(y == 0){
-        scr_printf("    > IP Address: %03d.%03d.%03d.%03d:%03d <\n", smb->ip[0], smb->ip[1], smb->ip[2], smb->ip[3], smb->port);
-        switch(x){
-            case 0: 
-				scr_printf("                   ^");
-				break;
-            case 1:
-				scr_printf("                       ^");
-				break;
-            case 2:
-				scr_printf("                           ^");
-				break;
-            case 3:
-				scr_printf("                               ^");
-				break;
-            case 4:
-				scr_printf("                                   ^");
-				break;
-        }
+        scr_printf("    > IP Address: %s <\n", smb->ip_address);
     } else {
-        scr_printf("      IP Address: %03d.%03d.%03d.%03d:%03d  \n", smb->ip[0], smb->ip[1], smb->ip[2], smb->ip[3], smb->port);
-        scr_printf("                                    ");
+        scr_printf("      IP Address: %s  \n", smb->ip_address);
     }
 
     scr_setXY(0, 10);
@@ -463,73 +455,24 @@ void updateKeyboard(const char *buf, int kb_x, int kb_y, int upper_mode)
 void updateIPCONF(const ip_config_t *ipconf, int x, int y){
 	scr_setXY(0, 8);
 	if(y == 0){
-		scr_printf("    > IP Address: %03d.%03d.%03d.%03d <\n",
-		           ipconf->ip[0], ipconf->ip[1], ipconf->ip[2], ipconf->ip[3]);
-		switch(x){
-			case 0:
-				scr_printf("                   ^\n");
-				break;
-			case 1:
-				scr_printf("                       ^\n");
-				break;
-			case 2:
-				scr_printf("                           ^\n");
-				break;
-			case 3:
-				scr_printf("                               ^\n");
-				break;
-		}
-	}
-	else{
-		scr_printf("      IP Address: %03d.%03d.%03d.%03d  \n",
-		           ipconf->ip[0], ipconf->ip[1], ipconf->ip[2], ipconf->ip[3]);
-		scr_printf("\n");
+		scr_printf("    > IP Address: %s <\n\n", ipconf->ip_address);
+	} else {
+		scr_printf("      IP Address: %s  \n\n", ipconf->ip_address);
 	}
 	if(y == 1){
-		scr_printf("    > Netmask:    %03d.%03d.%03d.%03d <\n",
-		           ipconf->netmask[0], ipconf->netmask[1], ipconf->netmask[2], ipconf->netmask[3]);
-		switch(x){
-			case 0:
-				scr_printf("                   ^\n");
-				break;
-			case 1:
-				scr_printf("                       ^\n");
-				break;
-			case 2:
-				scr_printf("                           ^\n");
-				break;
-			case 3:
-				scr_printf("                               ^\n");
-				break;
-		}
-	}
-	else{
-		scr_printf("      Netmask:    %03d.%03d.%03d.%03d\n",
-		           ipconf->netmask[0], ipconf->netmask[1], ipconf->netmask[2], ipconf->netmask[3]);
-		scr_printf("\n");
+		scr_printf("    > Netmask:    %s <\n\n", ipconf->netmask);
+	} else {
+		scr_printf("      Netmask:    %s  \n\n", ipconf->netmask);
 	}
 	if(y == 2){
-		scr_printf("    > Gateway:    %03d.%03d.%03d.%03d <\n",
-		           ipconf->gateway[0], ipconf->gateway[1], ipconf->gateway[2], ipconf->gateway[3]);
-		switch(x){
-			case 0:
-				scr_printf("                   ^\n");
-				break;
-			case 1:
-				scr_printf("                       ^\n");
-				break;
-			case 2:
-				scr_printf("                           ^\n");
-				break;
-			case 3:
-				scr_printf("                               ^\n");
-				break;
-		}
+		scr_printf("    > Gateway:    %s <\n\n\n", ipconf->gateway);
+	} else {
+		scr_printf("      Gateway:    %s  \n\n\n", ipconf->gateway);
 	}
-	else{
-		scr_printf("      Gateway:    %03d.%03d.%03d.%03d\n",
-		           ipconf->gateway[0], ipconf->gateway[1], ipconf->gateway[2], ipconf->gateway[3]);
-		scr_printf("\n");
+	if(y == 3){
+		scr_printf("    > Save <\n");
+	} else {
+		scr_printf("      Save  \n");
 	}
 }
 

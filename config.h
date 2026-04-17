@@ -7,8 +7,7 @@
 
 // Structure for SMB configuration
 typedef struct {
-    int ip[4];           // IP address octets (ipa, ipb, ipc, ipd)
-    int port;            // Port number (ipe)
+    char ip_address[22]; // SMB IP address and port string (e.g. 192.168.0.1:445)
     char share[81];      // SMB share name
     char username[256];  // SMB username
     char password[256];  // SMB password
@@ -16,9 +15,9 @@ typedef struct {
 
 // Structure for IP configuration
 typedef struct {
-    int ip[4];           // IP address octets
-    int netmask[4];      // Netmask octets
-    int gateway[4];      // Gateway octets
+    char ip_address[16]; // IP address string (e.g. 192.168.0.1)
+    char netmask[16];    // Netmask string (e.g. 255.255.255.0)
+    char gateway[16];    // Gateway string (e.g. 192.168.0.254)
 } ip_config_t;
 
 // Structure to hold all application state
@@ -29,6 +28,7 @@ typedef struct {
     char file_chosen[20];
     char path[260];
     enum smb_field editing_field;
+    enum ipconf_field editing_ip_field;
 } app_state_t;
 
 // Helper functions for config management

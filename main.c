@@ -8,7 +8,6 @@
 #include "pad.h"
 #include "modules.h"
 #include "display.h"
-#include "math.h"
 #include "menus.h"
 #include "fileio.h"
 #include "config.h"
@@ -25,47 +24,78 @@ static const char kb_upper[] =
     "!@#$%^&*()-_="
     "+[]{}|;:'\",./";
 
+#define KB_MAX_IPADDR   21
+#define KB_MAX_IPFIELD  15
 #define KB_MAX_SHARE    80
 #define KB_MAX_USERNAME 255
 #define KB_MAX_PASSWORD 255
 
 /* Helper functions for keyboard menu */
-static const char *field_name(enum smb_field f){
+static const char *field_name(int f){
     switch(f){
-        case FIELD_SHARE:    
-			return "Share";
-        case FIELD_USERNAME: 
-			return "User";
-        case FIELD_PASSWORD: 
-			return "Password";
-        default:             
-			return "?";
+        case FIELD_IP_ADDRESS:
+            return "IP Address";
+        case FIELD_SHARE:
+            return "Share";
+        case FIELD_USERNAME:
+            return "User";
+        case FIELD_PASSWORD:
+            return "Password";
+        case FIELD_IPCONF_IP:
+            return "IP Address";
+        case FIELD_IPCONF_NETMASK:
+            return "Netmask";
+        case FIELD_IPCONF_GATEWAY:
+            return "Gateway";
+        default:
+            return "?";
     }
 }
 
-static int field_max(enum smb_field f){
+static int field_max(int f){
     switch(f){
-        case FIELD_SHARE:    
-			return KB_MAX_SHARE;
-        case FIELD_USERNAME: 
-			return KB_MAX_USERNAME;
-        case FIELD_PASSWORD: 
-			return KB_MAX_PASSWORD;
-        default:             
-			return 0;
+        case FIELD_IP_ADDRESS:
+            return KB_MAX_IPADDR;
+        case FIELD_SHARE:
+            return KB_MAX_SHARE;
+        case FIELD_USERNAME:
+            return KB_MAX_USERNAME;
+        case FIELD_PASSWORD:
+            return KB_MAX_PASSWORD;
+        case FIELD_IPCONF_IP:
+        case FIELD_IPCONF_NETMASK:
+        case FIELD_IPCONF_GATEWAY:
+            return KB_MAX_IPFIELD;
+        default:
+            return 0;
     }
 }
 
 static char *field_buf(smb_config_t *smb, enum smb_field f){
     switch(f){
-        case FIELD_SHARE:    
-			return smb->share;
-        case FIELD_USERNAME: 
-			return smb->username;
-        case FIELD_PASSWORD: 
-			return smb->password;
-        default:             
-			return smb->share;
+        case FIELD_IP_ADDRESS:
+            return smb->ip_address;
+        case FIELD_SHARE:
+            return smb->share;
+        case FIELD_USERNAME:
+            return smb->username;
+        case FIELD_PASSWORD:
+            return smb->password;
+        default:
+            return smb->share;
+    }
+}
+
+static char *field_buf_ip(ip_config_t *ipconf, enum ipconf_field f){
+    switch(f){
+        case FIELD_IPCONF_IP:
+            return ipconf->ip_address;
+        case FIELD_IPCONF_NETMASK:
+            return ipconf->netmask;
+        case FIELD_IPCONF_GATEWAY:
+            return ipconf->gateway;
+        default:
+            return ipconf->ip_address;
     }
 }
 
@@ -236,68 +266,31 @@ int main(){
                         updateSMBEdit(&state.smb, x, y);
                     }
 
-                    if(y == 0){
-                        if((new_pad & PAD_LEFT) && x > 0){
-                            x--;
-                            updateSMBEdit(&state.smb, x, y);
-                        }
-                        if((new_pad & PAD_RIGHT) && x < 4){
-                            x++;
-                            updateSMBEdit(&state.smb, x, y);
-                        }
-                        if(new_pad & PAD_R1){
-                            if(x == 4) plusOne(&state.smb.port, x);
-                            else        plusOne(state.smb.ip, x);
-                            updateSMBEdit(&state.smb, x, y);
-                        }
-                        if(new_pad & PAD_L1){
-                            if(x == 4) subsOne(&state.smb.port, x);
-                            else        subsOne(state.smb.ip, x);
-                            updateSMBEdit(&state.smb, x, y);
-                        }
-                        if(new_pad & PAD_L2){
-                            if(x == 4) subsTen(&state.smb.port, x);
-                            else        subsTen(state.smb.ip, x);
-                            updateSMBEdit(&state.smb, x, y);
-                        }
-                        if(new_pad & PAD_R2){
-                            if(x == 4) plusTen(&state.smb.port, x);
-                            else        plusTen(state.smb.ip, x);
-                            updateSMBEdit(&state.smb, x, y);
-                        }
-                    }
-
-                    if(y >= 1 && y <= 3){
-                        if(new_pad & PAD_CROSS){
-                            switch(y){
-                                case 1: 
-									state.editing_field = FIELD_SHARE;
-									break;
-                                case 2: 
-									state.editing_field = FIELD_USERNAME;
-									break;
-                                case 3: 
-									state.editing_field = FIELD_PASSWORD;
-									break;
-                            }
-							strcpy(kb_buf, field_buf(&state.smb, state.editing_field));
-                            kb_x = kb_y = kb_upper_mode = 0;
-                            old_menu = last_menu = SMB_EDIT_MENU;
-                            menu = KEYBOARD_MENU;
-                            displayKeyboard(field_name(state.editing_field),
-                                            kb_buf, kb_x, kb_y, kb_upper_mode);
-                            old_menu = KEYBOARD_MENU;
-                        }
-                    }
-
-                    if(y == 4){
-                        if(new_pad & PAD_CROSS){
+                    if(new_pad & PAD_CROSS){
+                        if(y == 0){
+                            state.editing_field = FIELD_IP_ADDRESS;
+                        } else if(y == 1){
+                            state.editing_field = FIELD_SHARE;
+                        } else if(y == 2){
+                            state.editing_field = FIELD_USERNAME;
+                        } else if(y == 3){
+                            state.editing_field = FIELD_PASSWORD;
+                        } else if(y == 4){
                             x = y = 0;
                             old_menu = last_menu = SMB_EDIT_MENU;
                             menu = WRITE_MENU;
                         }
-                    }
 
+                        if(menu == SMB_EDIT_MENU && y >= 0 && y <= 3){
+                            strcpy(kb_buf, field_buf(&state.smb, state.editing_field));
+                            kb_x = kb_y = kb_upper_mode = 0;
+                            old_menu = last_menu = SMB_EDIT_MENU;
+                            menu = KEYBOARD_MENU;
+                            displayKeyboard(field_name(state.editing_ip_field),
+                                            kb_buf, kb_x, kb_y, kb_upper_mode);
+                            old_menu = KEYBOARD_MENU;
+                        }
+                    }
                     if(new_pad & PAD_CIRCLE){
                         x = y = 0;
                         init_smb_config(&state.smb);
@@ -336,47 +329,54 @@ int main(){
                         changed = 1;
                     }
 
-                    if(new_pad & PAD_CROSS){
-                        int len = strlen(kb_buf);
-                        if(len < field_max(state.editing_field)){
-                            const char *layout = kb_upper_mode ? kb_upper : kb_lower;
-                            char ch = layout[kb_y * KB_COLS + kb_x];
-                            if(ch != ' '){
-                                kb_buf[len]     = ch;
+                    {
+                        int current_field = (last_menu == IP_EDIT_MENU) ? state.editing_ip_field : state.editing_field;
+
+                        if(new_pad & PAD_CROSS){
+                            int len = strlen(kb_buf);
+                            if(len < field_max(current_field)){
+                                const char *layout = kb_upper_mode ? kb_upper : kb_lower;
+                                char ch = layout[kb_y * KB_COLS + kb_x];
+                                if(ch != ' '){
+                                    kb_buf[len]     = ch;
+                                    kb_buf[len + 1] = '\0';
+                                    changed = 1;
+                                }
+                            }
+                        }
+
+                        if(new_pad & PAD_TRIANGLE){
+                            int len = strlen(kb_buf);
+                            if(len < field_max(current_field)){
+                                kb_buf[len]     = ' ';
                                 kb_buf[len + 1] = '\0';
+                                changed = 1;
+                            }
+                        }
+
+                        if(new_pad & PAD_SQUARE){
+                            int len = strlen(kb_buf);
+                            if(len > 0){
+                                kb_buf[len - 1] = '\0';
                                 changed = 1;
                             }
                         }
                     }
 
-                    if(new_pad & PAD_TRIANGLE){
-                        int len = strlen(kb_buf);
-                        if(len < field_max(state.editing_field)){
-                            kb_buf[len]     = ' ';
-                            kb_buf[len + 1] = '\0';
-                            changed = 1;
-                        }
-                    }
-
-                    if(new_pad & PAD_SQUARE){
-                        int len = strlen(kb_buf);
-                        if(len > 0){
-                            kb_buf[len - 1] = '\0';
-                            changed = 1;
-                        }
-                    }
-
                     if(new_pad & PAD_START){
-						strcpy(field_buf(&state.smb, state.editing_field), kb_buf);
-                        x = y =0;
-                        menu = SMB_EDIT_MENU;
+                        if(last_menu == SMB_EDIT_MENU){
+                            strcpy(field_buf(&state.smb, state.editing_field), kb_buf);
+                        } else if(last_menu == IP_EDIT_MENU){
+                            strcpy(field_buf_ip(&state.ipconf, state.editing_ip_field), kb_buf);
+                        }
+                        x = y = 0;
+                        menu = last_menu;
                         old_menu = KEYBOARD_MENU;
                     }
 
                     if(new_pad & PAD_CIRCLE){
                         x = y = 0;
-                        menu = SMB_EDIT_MENU;
-                        old_menu = KEYBOARD_MENU;
+                        menu = last_menu;
                     }
 
                     if(changed && menu == KEYBOARD_MENU){
@@ -385,91 +385,49 @@ int main(){
                     }
                     break;
                 }
-				case IP_EDIT_MENU:			// IPCONFIG editing menu.
-					if((new_pad & PAD_LEFT) && x > 0) {																		// When the arrows are pressed, the UI gets updated.
-						x--;
-						updateIPCONF(&state.ipconf, x, y);
-					}
-					if((new_pad & PAD_RIGHT) && x < 3) {
-						x++;
-						updateIPCONF(&state.ipconf, x, y);
-					}
+				case IP_EDIT_MENU:            // IPCONFIG editing menu.
 					if((new_pad & PAD_UP) && y > 0) {
 						y--;
 						updateIPCONF(&state.ipconf, x, y);
 					}
-					if((new_pad & PAD_DOWN) && y < 2) {
+					if((new_pad & PAD_DOWN) && y < 3) {
 						y++;
 						updateIPCONF(&state.ipconf, x, y);
 					}
-					if(new_pad & PAD_R1) {												// R1, L1, R2 and L2 are the buttons responsible for changing the IP values. When pressed, the math gets done and the UI gets updated with the new values.
+					if(new_pad & PAD_CROSS) {
 						switch(y){
-							case 0:
-								plusOne(state.ipconf.ip, x);
-								break;
-							case 1:
-								plusOne(state.ipconf.netmask, x);
-								break;
-							case 2:
-								plusOne(state.ipconf.gateway, x);
-								break;
-						}
-						updateIPCONF(&state.ipconf, x, y);
+						case 0:
+							state.editing_ip_field = FIELD_IPCONF_IP;
+							break;
+						case 1:
+							state.editing_ip_field = FIELD_IPCONF_NETMASK;
+							break;
+						case 2:
+							state.editing_ip_field = FIELD_IPCONF_GATEWAY;
+							break;
+						case 3:
+							x = y = 0;
+							old_menu = last_menu = IP_EDIT_MENU;
+							menu = WRITE_MENU;
+							break;
 					}
-					if(new_pad & PAD_L1) {
-						switch(y){
-							case 0:
-								subsOne(state.ipconf.ip, x);
-								break;
-							case 1:
-								subsOne(state.ipconf.netmask, x);
-								break;
-							case 2:
-								subsOne(state.ipconf.gateway, x);
-								break;
+						if(menu == IP_EDIT_MENU && y >= 0 && y <= 2){
+							strcpy(kb_buf, field_buf_ip(&state.ipconf, state.editing_ip_field));
+							kb_x = kb_y = kb_upper_mode = 0;
+							old_menu = last_menu = IP_EDIT_MENU;
+							menu = KEYBOARD_MENU;
+							displayKeyboard(field_name(state.editing_ip_field),
+									kb_buf, kb_x, kb_y, kb_upper_mode);
+							old_menu = KEYBOARD_MENU;
 						}
-						updateIPCONF(&state.ipconf, x, y);
 					}
-					if(new_pad & PAD_L2) {
-						switch(y){
-							case 0:
-								subsTen(state.ipconf.ip, x);
-								break;
-							case 1:
-								subsTen(state.ipconf.netmask, x);
-								break;
-							case 2:
-								subsTen(state.ipconf.gateway, x);
-								break;
-						}
-						updateIPCONF(&state.ipconf, x, y);
-					}
-					if(new_pad & PAD_R2) {
-						switch(y){
-							case 0:
-								plusTen(state.ipconf.ip, x);
-								break;
-							case 1:
-								plusTen(state.ipconf.netmask, x);
-								break;
-							case 2:
-								plusTen(state.ipconf.gateway, x);
-								break;
-						}
-						updateIPCONF(&state.ipconf, x, y);
-					}
-					if(new_pad & PAD_CIRCLE) {					// If circle is pressed the variables get reset and the previous menu gets loaded
+					if(new_pad & PAD_CIRCLE) {                    // If circle is pressed the variables get reset and the previous menu gets loaded
 						x = y = 0;
 						init_ip_config(&state.ipconf);
 						state.path[0] = '\0';
 						state.file_chosen[0] = '\0';
 						old_menu = last_menu = IP_EDIT_MENU;
 						menu = FILE_MENU;
-					}
-					if(new_pad & PAD_CROSS) {			// If cross gets pressed, the write confirmation menu gets shown
-						x = y = 0;
-						old_menu = last_menu = IP_EDIT_MENU;
-						menu = WRITE_MENU;
 					}
 					break;
 				case WRITE_MENU:									// Write confirmation menu
